@@ -8,24 +8,28 @@ import { Effect } from "effect"
 import { formatMap, type Configuration } from './types';
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()("ImageMagickService", {
+  accessors: true,
   effect: Effect.gen(function*() {
     let isInitialized = false;
+
+    const fetchWasmBytes = Effect.tryPromise({
+      try: async () => {
+        const response = await fetch(wasmUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to load WASM: ${response.statusText}`);
+        }
+        return response.arrayBuffer();
+      },
+      catch: (error) => new Error(`WASM fetch failed: ${error}`)
+    });
+
 
     const initialize = Effect.gen(function*() {
       if (isInitialized) return;
 
       yield* Effect.log("Initializing ImageMagick WASM...");
+      const wasmBytes = yield* fetchWasmBytes
 
-      const wasmBytes = yield* Effect.tryPromise({
-        try: async () => {
-          const response = await fetch(wasmUrl);
-          if (!response.ok) {
-            throw new Error(`Failed to load WASM: ${response.statusText}`);
-          }
-          return response.arrayBuffer();
-        },
-        catch: (error) => new Error(`WASM fetch failed: ${error}`)
-      });
 
       yield* Effect.tryPromise({
         try: () => initializeImageMagick(wasmBytes),
@@ -85,6 +89,6 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
       return processedData;
     });
 
-    return { initialize, processImage } as const;
+    return { initialize, processImage, fetchWasmBytes } as const;
   })
 }) { }
