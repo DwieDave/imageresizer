@@ -82,7 +82,7 @@ const App = () => {
       <div className="flex flex-row">
         <div className="flex flex-row items-center">
           <img src="icon.png" className="w-9" alt="Icon" />
-          <span className="ml-3">Light ImageResizer</span>
+          <span className="ml-3 hidden md:block">Light ImageResizer</span>
         </div>
         <Settings className="w-100" buttonClassName="w-60 ml-auto" />
       </div>
