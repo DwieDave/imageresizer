@@ -18,6 +18,8 @@ import { configurationRx } from "@/state"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FormatSchema, type Configuration, type Format } from "@/types"
 import type React from "react"
+import { Cog } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export const Settings = ({ className, buttonClassName }: { className: string, buttonClassName: string }) => {
   const [config, setConfig] = useRx(configurationRx)
@@ -26,14 +28,14 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className={buttonClassName}>Open Settings</Button>
+        <Button className={cn(buttonClassName, "cursor-pointer")}><Cog />Open Settings</Button>
       </PopoverTrigger>
-      <PopoverContent className={className}>
+      <PopoverContent className={className} align="end">
         <div className="grid gap-4">
           <div className="space-y-2">
-            <h4 className="leading-none font-medium">Image Resize Settings</h4>
+            <h4 className="leading-none font-medium">Image Settings</h4>
             <p className="text-muted-foreground text-sm">
-              Set the parameter for resizing the dropped images.
+              Set the parameter for batch executing on the dropped images.
             </p>
           </div>
           <div className="grid gap-2">

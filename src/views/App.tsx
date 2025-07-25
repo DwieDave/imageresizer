@@ -79,7 +79,13 @@ const App = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <Settings className="w-100" buttonClassName="w-60 self-end" />
+      <div className="flex flex-row">
+        <div className="flex flex-row items-center">
+          <img src="icon.png" className="w-9" alt="Icon" />
+          <span className="ml-3">Light ImageResizer</span>
+        </div>
+        <Settings className="w-100" buttonClassName="w-60 ml-auto" />
+      </div>
       <Dropzone
         accept={{ 'image/*': [] }}
         className='h-[calc(100dvh-135px)]'
