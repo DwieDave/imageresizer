@@ -2,11 +2,10 @@ import {
   initializeImageMagick,
   ImageMagick,
   Magick,
-  MagickFormat
 } from '@imagemagick/magick-wasm';
 import wasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
 import { Effect } from "effect"
-import type { Configuration } from './types';
+import { formatMap, type Configuration } from './types';
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()("ImageMagickService", {
   effect: Effect.gen(function*() {
@@ -43,15 +42,6 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
     ) => Effect.gen(function*() {
       yield* initialize;
 
-      const formatMap = {
-        jpeg: MagickFormat.Jpeg,
-        png: MagickFormat.Png,
-        webp: MagickFormat.WebP,
-        heic: MagickFormat.Heic,
-        svg: MagickFormat.Svg,
-        gif: MagickFormat.Gif,
-        avif: MagickFormat.Avif
-      };
 
       const outputFormat = formatMap[config.format ?? 'jpeg'];
 
@@ -63,15 +53,17 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
               const [width, height] = [image.width, image.height];
               const aspectRatio = width / height;
 
-              const dimensions = config.dimensions._tag === "widthHeight" ? {
-                width: config.dimensions.width,
-                height: config.dimensions.height
-              } : {
-                width: width > height ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio,
-                height: height > width ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio
-              }
+              if (config.dimensions._tag !== "noResize") {
+                const dimensions = config.dimensions._tag === "widthHeight" ? {
+                  width: config.dimensions.width,
+                  height: config.dimensions.height
+                } : {
+                  width: width > height ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio,
+                  height: height > width ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio
+                }
 
-              image.resize(dimensions.width, dimensions.height);
+                image.resize(dimensions.width, dimensions.height);
+              }
 
               image.quality = config.compression * 100;
 

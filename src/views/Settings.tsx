@@ -65,7 +65,7 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
                 } />
             </div>
 
-            {config.dimensions._tag === "longestSide"
+            {config.dimensions._tag !== "noResize" && (config.dimensions._tag === "longestSide"
               ? <div className={gridItemClass}>
                 <Label htmlFor="longestSide">Longest side</Label>
                 <Input
@@ -99,7 +99,7 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
                     className="col-span-2 h-8"
                   />
                 </div>
-              </>}
+              </>)}
 
             <div className={gridItemClass}>
               <Label htmlFor="format">Format</Label>
