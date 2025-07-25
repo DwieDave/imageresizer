@@ -3,7 +3,7 @@ import { BrowserRuntime } from "@effect/platform-browser"
 import { BrowserWorkerRunner } from "@effect/platform-browser"
 import { Effect, Layer, type Record, Stream } from "effect"
 import type { Format, ProcessedImage, WorkerInput } from "./types"
-import { ImageMagickService } from "./imagemagick"
+import { ImageMagickService } from "@/lib/imagemagick"
 
 
 const formatReplacementMap: Partial<Record<Format, string>> = {

@@ -5,7 +5,7 @@ import {
 } from '@imagemagick/magick-wasm';
 import wasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
 import { Effect } from "effect"
-import { formatMap, type Configuration } from './types';
+import { formatMap, type Configuration } from '@/types';
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()("ImageMagickService", {
   accessors: true,
@@ -30,7 +30,6 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
       yield* Effect.log("Initializing ImageMagick WASM...");
       const wasmBytes = yield* fetchWasmBytes
 
-
       yield* Effect.tryPromise({
         try: () => initializeImageMagick(wasmBytes),
         catch: (error) => new Error(`WASM initialization failed: ${error}`)
@@ -45,7 +44,6 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
       config: Configuration
     ) => Effect.gen(function*() {
       yield* initialize;
-
 
       const outputFormat = formatMap[config.format ?? 'jpeg'];
 
