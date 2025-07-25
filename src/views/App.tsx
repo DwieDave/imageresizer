@@ -1,21 +1,22 @@
 'use client';
-import './App.css'
 import { useRxSet, useRxValue } from '@effect-rx/rx-react'
-import { Dropzone, DropzoneContent, DropzoneEmptyState } from './components/ui/kibo-ui/dropzone';
+import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/ui/kibo-ui/dropzone';
 import { BrowserRuntime, BrowserWorker } from '@effect/platform-browser';
 import { Effect, Stream, Layer, Context, Chunk, Record as R, pipe, Array as A, DateTime } from "effect"
 import { Worker as EffectWorker } from "@effect/platform"
-import { makeImageId, type Image, type ImageId, type MyWorkerPool, type ProcessedImage, type WorkerInput } from './types.ts';
-import { downloadBlob } from './download.ts';
-import { zipFiles } from './zip.ts';
-import { configurationRx, filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx, stateRegistry } from './state.ts';
+import { makeImageId, type Image, type ImageId, type MyWorkerPool, type ProcessedImage, type WorkerInput } from '@/types.ts';
+import { downloadBlob } from '@/download.ts';
+import { zipFiles } from '@/zip.ts';
+import { configurationRx, filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx, stateRegistry } from '@/state.ts';
 import { Settings } from './Settings.tsx';
-import WorkerUrl from './worker.ts?worker&url';
-import { Progress } from './components/ui/progress.tsx';
+import WorkerUrl from '@/worker.ts?worker&url';
+import { Progress } from '@/components/ui/progress.tsx';
 
 const Pool = Context.GenericTag<MyWorkerPool, EffectWorker.WorkerPool<WorkerInput, ProcessedImage>>("@app/MyWorkerPool")
 
-const PoolLive = EffectWorker.makePoolLayer(Pool, { size: 7 }).pipe(
+const MAX_POOL_SIZE = 7;
+
+const makePoolLive = (size: number) => EffectWorker.makePoolLayer(Pool, { size }).pipe(
   Layer.provide(BrowserWorker.layer(() => new Worker(WorkerUrl, { type: 'module' })))
 )
 
@@ -42,7 +43,7 @@ const executePool = (input: WorkerInput[]) => Effect.gen(function*() {
   )), { concurrency: "inherit" })
 }).pipe(
   Effect.flatMap(downloadZip),
-  Effect.provide(PoolLive),
+  Effect.provide(makePoolLive(Math.min(input.length, MAX_POOL_SIZE))),
   BrowserRuntime.runMain
 )
 
