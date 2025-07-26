@@ -5,7 +5,7 @@ import {
 } from '@imagemagick/magick-wasm';
 import wasmUrl from '@imagemagick/magick-wasm/magick.wasm?url';
 import { Effect } from "effect"
-import { formatMap, type Configuration } from '@/types';
+import { formatMap, type Configuration } from '@/lib/types';
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()("ImageMagickService", {
   accessors: true,
@@ -45,7 +45,7 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
     ) => Effect.gen(function*() {
       yield* initialize;
 
-      const outputFormat = formatMap[config.format ?? 'jpeg'];
+      const outputFormat = formatMap[config.export.format ?? 'jpeg'];
 
       const processedData = yield* Effect.tryPromise({
         try: () => new Promise<ArrayBuffer>((resolve, reject) => {
@@ -55,7 +55,7 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
               const [width, height] = [image.width, image.height];
               const aspectRatio = width / height;
 
-              if (config.dimensions._tag !== "noResize") {
+              if (config.operations.resize) {
                 const dimensions = config.dimensions._tag === "widthHeight" ? {
                   width: config.dimensions.width,
                   height: config.dimensions.height
@@ -67,7 +67,7 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
                 image.resize(dimensions.width, dimensions.height);
               }
 
-              image.quality = config.compression * 100;
+              if (config.operations.compress) image.quality = config.compression * 100;
 
               // Write to specified format
               image.write(outputFormat, (data) => {

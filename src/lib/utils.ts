@@ -7,11 +7,11 @@ import { Worker as EffectWorker } from "@effect/platform"
 
 import { downloadBlob } from '@/lib/download.ts';
 import { zipFiles } from '@/lib/zip.ts';
-import type { Image, ImageId, MyWorkerPool, ProcessedImage, WorkerInput } from '@/types.ts';
-import { configurationRx, imagesRx, stateRegistry } from '@/state.ts';
+import type { Image, ImageId, MyWorkerPool, ProcessedImage, WorkerInput } from '@/lib/types.ts';
+import { configurationRx, imagesRx, showSuccessRx, stateRegistry } from '@/lib/state.ts';
 
+import WorkerUrl from '@/lib/worker.ts?worker&url';
 
-import WorkerUrl from '@/worker.ts?worker&url';
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -47,6 +47,13 @@ const executePool = (input: WorkerInput[]) => Effect.gen(function*() {
   )), { concurrency: "inherit" })
 }).pipe(
   Effect.flatMap(downloadZip),
+  Effect.map(() =>
+    stateRegistry.set(showSuccessRx, true)
+  ),
+  Effect.flatMap(() => Effect.sleep("3 seconds")),
+  Effect.map(() =>
+    stateRegistry.set(showSuccessRx, false)
+  ),
   Effect.provide(makePoolLive(Math.min(input.length, MAX_POOL_SIZE))),
   BrowserRuntime.runMain
 )

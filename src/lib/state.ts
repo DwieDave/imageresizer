@@ -1,6 +1,6 @@
 import { Registry, Rx } from "@effect-rx/rx-react";
 import { Record as R, pipe, Array as A } from "effect"
-import { Configuration, type Image, type ImageId } from "./types";
+import { Configuration, type Image, type ImageId } from "@/lib/types";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
 
 export const stateRegistry = Registry.make()
@@ -26,15 +26,21 @@ export const configurationRx = Rx.kvs({
   key: "configuration",
   schema: Configuration,
   defaultValue: () => Configuration.make({
+    operations: {
+      resize: true,
+      compress: true
+    },
     compression: 0.5,
     dimensions: {
       _tag: "longestSide",
       longestSide: 1080
     },
-    format: "jpeg",
-    metadata: {
+    export: {
+      format: "jpeg",
       exif: true,
       gps: true
     }
   }),
 })
+
+export const showSuccessRx = Rx.make(false)

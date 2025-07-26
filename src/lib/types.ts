@@ -7,7 +7,7 @@ export interface MyWorkerPool {
 }
 
 export const FormatSchema = Schema.Literal("jpeg", "png", "webp", "avif", "gif", "svg")
-export type Format = Configuration["format"]
+export type Format = Configuration["export"]["format"]
 
 export const formatMap: Record<Format, MagickFormat> = {
   jpeg: MagickFormat.Jpeg,
@@ -19,14 +19,17 @@ export const formatMap: Record<Format, MagickFormat> = {
 };
 
 export const Configuration = Schema.Struct({
+  operations: Schema.Struct({
+    resize: Schema.Boolean,
+    compress: Schema.Boolean
+  }),
   dimensions: Schema.Union(
-    Schema.TaggedStruct("noResize", {}),
     Schema.TaggedStruct("longestSide", { longestSide: Schema.Positive }),
     Schema.TaggedStruct("widthHeight", { width: Schema.Number, height: Schema.Positive })
   ),
   compression: Schema.Positive.pipe(Schema.filter((i) => i <= 1 && i >= 0)),
-  format: FormatSchema,
-  metadata: Schema.Struct({
+  export: Schema.Struct({
+    format: FormatSchema,
     exif: Schema.Boolean,
     gps: Schema.Boolean
   })

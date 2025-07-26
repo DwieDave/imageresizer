@@ -2,9 +2,8 @@ import { WorkerRunner, Path } from "@effect/platform"
 import { BrowserRuntime } from "@effect/platform-browser"
 import { BrowserWorkerRunner } from "@effect/platform-browser"
 import { Effect, Layer, type Record, Stream } from "effect"
-import type { Format, ProcessedImage, WorkerInput } from "./types"
+import type { Format, ProcessedImage, WorkerInput } from "@/lib/types"
 import { ImageMagickService } from "@/lib/imagemagick"
-
 
 const formatReplacementMap: Partial<Record<Format, string>> = {
   jpeg: "jpg"
@@ -34,11 +33,11 @@ const processImage = ({ image, id, config }: WorkerInput) =>
     const result: ProcessedImage = {
       id,
       processed: true,
-      name: yield* newName(image.file.name, config.format),
+      name: yield* newName(image.file.name, config.export.format),
       originalSize: imageData.byteLength,
       processedSize: processedData.byteLength,
       data: processedData,
-      mimeType: `image/${config.format ?? 'jpeg'}`
+      mimeType: `image/${config.export.format ?? 'jpeg'}`
     };
 
     yield* Effect.log(
