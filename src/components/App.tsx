@@ -42,7 +42,7 @@ const App = () => {
       >
         {showSuccess ? <>
           <CircleCheckBig className="size-10" color="#28d401" />
-          {processedCount} images successfully processed and exported as .zip
+          {processedCount} images successfully processed<br /> and downloaded as .zip
         </> :
           !isProcessing ? <>
             <DropzoneEmptyState />

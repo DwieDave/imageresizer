@@ -56,6 +56,8 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
             </p>
           </div>
           <div className="grid gap-2">
+            {/* Compression Section */}
+
             <div className={sectionWrapper}>
               <Checkbox
                 id="compressionToggle"
@@ -84,6 +86,8 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
               </div>
             </div>
 
+
+            {/* Resize Section */}
             <div className={sectionWrapper}>
               <Checkbox
                 id="resizeToggle"
@@ -112,35 +116,33 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
                   </div>
 
                   {config.dimensions._tag === "longestSide"
-                    ? <div className={gridItemClass}>
-                      <Label htmlFor="longestSide">Side length</Label>
+                    ? <div className="flex flex-row items-center gap-2">
                       <Input
                         id="longestSide"
                         value={config.dimensions.longestSide}
                         onChange={(event) => setConfig((old) => ({ ...old, dimensions: { _tag: "longestSide", longestSide: Number(event.currentTarget.value) } }))}
                         min="1"
                         type="number"
-                        className="col-span-2 h-8"
+                        className="h-8 max-w-1/2"
                       />
+                      <span>px</span>
                     </div>
 
                     : <>
-                      <div className={gridItemClass}>
-                        <Label htmlFor="width">Width</Label>
+                      <div className="flex flex-row gap-3 items-center">
                         <Input
                           id="width"
+                          placeholder="Width"
                           type="number"
                           value={config.dimensions.width}
                           onChange={({ currentTarget }) => setConfig((old: Configuration) => ({ ...old, dimensions: { ...old.dimensions, width: Number(currentTarget.value) } }))}
                           min="1"
                           className="col-span-2 h-8"
                         />
-                      </div>
-
-                      <div className={gridItemClass}>
-                        <Label htmlFor="height">Height</Label>
+                        &times;
                         <Input
                           id="height"
+                          placeholder="Height"
                           value={config.dimensions.height}
                           onChange={(event) => setConfig((old: Configuration) => ({ ...old, dimensions: { ...old.dimensions, height: Number(event.currentTarget.value) } }))}
                           className="col-span-2 h-8"
@@ -151,7 +153,7 @@ export const Settings = ({ className, buttonClassName }: { className: string, bu
               </div>
             </div>
 
-
+            {/* Format Section */}
             <div className={gridItemClass}>
               <Label htmlFor="format">Format</Label>
               <Select value={config.export.format} onValueChange={(val) => setConfig((old) => ({ ...old, export: { ...old.export, format: val as Format } }))}>
