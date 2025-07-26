@@ -1,11 +1,13 @@
 'use client';
 import { useRxSet, useRxValue } from '@effect-rx/rx-react'
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/ui/kibo-ui/dropzone';
-import { makeImageId, type Image, type ImageId, } from '@/types.ts';
-import { filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx } from '@/state.ts';
-import { Progress } from '@/components/ui/progress.tsx';
-import { Header } from './Header.tsx';
-import { processImages } from '@/lib/utils.ts';
+import { makeImageId, type Image, type ImageId, } from '@/lib/types';
+import { filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx, showSuccessRx } from '@/lib/state';
+import { Progress } from '@/components/ui/progress';
+import { Header } from '@/components/Header';
+import { processImages } from '@/lib/utils';
+import { CircleCheckBig, LoaderCircle } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 const App = () => {
   const setImages = useRxSet(imagesRx)
@@ -13,7 +15,8 @@ const App = () => {
   const imageCount = useRxValue(imageCountRx)
   const processedCount = useRxValue(processedCountRx)
   const isProcessing = useRxValue(isProcessingRx);
-  const progressPercent = processedCount / imageCount * 100
+  const progressPercent = Math.round(processedCount / imageCount * 100)
+  const showSuccess = useRxValue(showSuccessRx)
 
   const handleDrop = (currentFiles: File[]) => {
     const imgs: Record<ImageId, Image> = {}
@@ -26,7 +29,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 h-[calc(100dvh-4rem)]">
+    <div className="flex flex-col gap-3 h-[calc(100dvh-2*var(--app-padding))]">
       <Header />
       <Dropzone
         accept={{ 'image/*': [] }}
@@ -37,10 +40,21 @@ const App = () => {
         onError={console.error}
         src={files}
       >
-        <DropzoneEmptyState />
-        <DropzoneContent />
+        {showSuccess ? <>
+          <CircleCheckBig className="size-10" color="#28d401" />
+          {processedCount} images successfully processed and exported as .zip
+        </> :
+          !isProcessing ? <>
+            <DropzoneEmptyState />
+            <DropzoneContent />
+          </> : <>
+            <LoaderCircle className="animate-spin size-10" />
+          </>}
       </Dropzone>
-      {isProcessing && <Progress value={progressPercent} />}
+      {isProcessing && <div className="flex flex-row items-center">
+        <Progress id="progress" value={progressPercent} />
+        <Label htmlFor='progress' className="ml-3 tabular-nums">{progressPercent}%</Label>
+      </div>}
     </div>
   );
 };
