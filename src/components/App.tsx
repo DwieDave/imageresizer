@@ -1,69 +1,35 @@
 'use client';
-import { useRxSet, useRxValue } from '@effect-rx/rx-react'
-import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/ui/kibo-ui/dropzone';
-import { makeImageId, type Image, type ImageId, } from '@/lib/types';
-import { filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx, showSuccessRx } from '@/lib/state';
+import { useRxValue } from '@effect-rx/rx-react'
+import { imageCountRx, isProcessingRx, processedCountRx } from '@/lib/state';
 import { Progress } from '@/components/ui/progress';
 import { Header } from '@/components/Header';
-import { processImages } from '@/lib/workerPool';
-import { CircleCheckBig, LoaderCircle } from 'lucide-react';
+import { poolSize } from '@/lib/workerPool';
+import { Cpu, } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { ImageDropzone } from '@/components/ImageDropzone';
 
-const App = () => {
-  const setImages = useRxSet(imagesRx)
-  const files = useRxValue(filesRx)
+export const App = () => {
   const imageCount = useRxValue(imageCountRx)
   const processedCount = useRxValue(processedCountRx)
   const isProcessing = useRxValue(isProcessingRx);
   const progressPercent = Math.round(processedCount / imageCount * 100)
-  const showSuccess = useRxValue(showSuccessRx)
-
-  const handleDrop = (currentFiles: File[]) => {
-    const imgs: Record<ImageId, Image> = {}
-    for (const file of currentFiles) {
-      const newImageId = makeImageId(self.crypto.randomUUID())
-      imgs[newImageId] = { file, processed: false };
-    }
-    setImages(imgs)
-    processImages(imgs)
-  };
-
-
-  const SuccessMessage = () => <>
-    <CircleCheckBig className="size-10" color="#28d401" />
-    {processedCount} images successfully processed<br /> and downloaded as .zip
-  </>
-
-  const ActiveDropzone = () => <>
-    <DropzoneEmptyState />
-    <DropzoneContent />
-  </>
+  const nrCpu = poolSize(imageCount)
 
   return (
     <div className="flex flex-col gap-3 h-[calc(100dvh-2*var(--app-padding))]">
       <Header />
-      <Dropzone
-        accept={{ 'image/*': [] }}
-        className="flex-grow"
-        disabled={isProcessing}
-        maxFiles={Number.POSITIVE_INFINITY}
-        onDrop={handleDrop}
-        onError={console.error}
-        src={files}
-      >
-        {showSuccess
-          ? <SuccessMessage />
-          : !isProcessing
-            ? <ActiveDropzone />
-            : <LoaderCircle className="animate-spin size-10" />
-        }
-      </Dropzone>
-      {isProcessing && <div className="flex flex-row items-center">
+      <ImageDropzone />
+      {isProcessing && <div className="flex flex-row items-center gap-3">
+        <div className="relative">
+          <Cpu />
+          <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+            {nrCpu}
+          </div>
+        </div>
         <Progress id="progress" value={progressPercent} />
-        <Label htmlFor='progress' className="ml-3 tabular-nums">{progressPercent}%</Label>
+        <Label htmlFor='progress' className="tabular-nums">{progressPercent}%</Label>
       </div>}
     </div>
   );
 };
 
-export default App
