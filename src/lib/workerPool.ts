@@ -9,28 +9,25 @@ import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
 const Pool = Context.GenericTag<MyWorkerPool, EffectWorker.WorkerPool<WorkerInput, ProcessedImage>>("@app/MyWorkerPool")
 
 const MAX_POOL_SIZE = navigator.hardwareConcurrency - 1;
+const poolSize = (imagesLength: number) => Math.min(imagesLength, MAX_POOL_SIZE)
 
 const makePoolLive = (size: number) => EffectWorker.makePoolLayer(Pool, { size }).pipe(
   Layer.provide(BrowserWorker.layer(() => new Worker(WorkerUrl, { type: 'module' })))
 )
 
-const executePool = (input: WorkerInput[]) => Effect.gen(function*() {
-  const pool = yield* Pool
-  return yield* Effect.all(input.map((img) => pool.execute(img).pipe(
-    Stream.tap(updateImage),
-    Stream.runCollect,
-    Effect.flatMap(Chunk.head),
-  )), { concurrency: "inherit" })
-}).pipe(
+const executePool = (input: WorkerInput[]) => Pool.pipe(
+  Effect.flatMap((pool) => Effect.all(
+    input.map((img) => pool.execute(img).pipe(
+      Stream.tap(updateImage),
+      Stream.runCollect,
+      Effect.flatMap(Chunk.head),
+    )), { concurrency: "inherit" })
+  ),
   Effect.flatMap(downloadZip),
-  Effect.map(() =>
-    stateRegistry.set(showSuccessRx, true)
-  ),
+  Effect.map(() => stateRegistry.set(showSuccessRx, true)),
   Effect.flatMap(() => Effect.sleep("3 seconds")),
-  Effect.map(() =>
-    stateRegistry.set(showSuccessRx, false)
-  ),
-  Effect.provide(makePoolLive(Math.min(input.length, MAX_POOL_SIZE))),
+  Effect.map(() => stateRegistry.set(showSuccessRx, false)),
+  Effect.provide(pipe(input.length, poolSize, makePoolLive)),
   BrowserRuntime.runMain
 )
 
