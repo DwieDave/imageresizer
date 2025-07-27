@@ -5,7 +5,7 @@ import { makeImageId, type Image, type ImageId, } from '@/lib/types';
 import { filesRx, imageCountRx, imagesRx, isProcessingRx, processedCountRx, showSuccessRx } from '@/lib/state';
 import { Progress } from '@/components/ui/progress';
 import { Header } from '@/components/Header';
-import { processImages } from '@/lib/utils';
+import { processImages } from '@/lib/workerPool';
 import { CircleCheckBig, LoaderCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
@@ -28,6 +28,17 @@ const App = () => {
     processImages(imgs)
   };
 
+
+  const SuccessMessage = () => <>
+    <CircleCheckBig className="size-10" color="#28d401" />
+    {processedCount} images successfully processed<br /> and downloaded as .zip
+  </>
+
+  const ActiveDropzone = () => <>
+    <DropzoneEmptyState />
+    <DropzoneContent />
+  </>
+
   return (
     <div className="flex flex-col gap-3 h-[calc(100dvh-2*var(--app-padding))]">
       <Header />
@@ -40,16 +51,12 @@ const App = () => {
         onError={console.error}
         src={files}
       >
-        {showSuccess ? <>
-          <CircleCheckBig className="size-10" color="#28d401" />
-          {processedCount} images successfully processed<br /> and downloaded as .zip
-        </> :
-          !isProcessing ? <>
-            <DropzoneEmptyState />
-            <DropzoneContent />
-          </> : <>
-            <LoaderCircle className="animate-spin size-10" />
-          </>}
+        {showSuccess
+          ? <SuccessMessage />
+          : !isProcessing
+            ? <ActiveDropzone />
+            : <LoaderCircle className="animate-spin size-10" />
+        }
       </Dropzone>
       {isProcessing && <div className="flex flex-row items-center">
         <Progress id="progress" value={progressPercent} />

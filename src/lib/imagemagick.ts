@@ -54,17 +54,18 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()("Im
               // Apply transformations
               const [width, height] = [image.width, image.height];
               const aspectRatio = width / height;
+              const { dimensions } = config
 
               if (config.operations.resize) {
-                const dimensions = config.dimensions._tag === "widthHeight" ? {
-                  width: config.dimensions.width,
-                  height: config.dimensions.height
+                const newDimensions = dimensions._tag === "widthHeight" ? {
+                  width: dimensions.width,
+                  height: dimensions.height
                 } : {
-                  width: width > height ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio,
-                  height: height > width ? config.dimensions.longestSide : config.dimensions.longestSide / aspectRatio
+                  width: width > height ? dimensions.longestSide : dimensions.longestSide / aspectRatio,
+                  height: height > width ? dimensions.longestSide : dimensions.longestSide / aspectRatio
                 }
 
-                image.resize(dimensions.width, dimensions.height);
+                image.resize(newDimensions.width, newDimensions.height);
               }
 
               if (config.operations.compress) image.quality = config.compression * 100;
