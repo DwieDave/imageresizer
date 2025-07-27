@@ -8,7 +8,7 @@ import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
 
 const Pool = Context.GenericTag<MyWorkerPool, EffectWorker.WorkerPool<WorkerInput, ProcessedImage>>("@app/MyWorkerPool")
 
-const MAX_POOL_SIZE = navigator.hardwareConcurrency - 1;
+const MAX_POOL_SIZE = navigator.hardwareConcurrency;
 export const poolSize = (imagesLength: number) => Math.min(imagesLength, MAX_POOL_SIZE)
 
 const makePoolLive = (size: number) => EffectWorker.makePoolLayer(Pool, { size }).pipe(
