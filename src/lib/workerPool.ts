@@ -3,13 +3,13 @@ import { Worker as EffectWorker } from "@effect/platform"
 import type { Image, ImageId, MyWorkerPool, ProcessedImage, WorkerInput } from "@/lib/types";
 import { BrowserRuntime, BrowserWorker } from "@effect/platform-browser";
 import WorkerUrl from '@/lib/worker.ts?worker&url';
-import { downloadZip, updateImage } from "@/lib/utils";
+import { downloadImages, updateImage } from "@/lib/utils";
 import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
 
 const Pool = Context.GenericTag<MyWorkerPool, EffectWorker.WorkerPool<WorkerInput, ProcessedImage>>("@app/MyWorkerPool")
 
 const MAX_POOL_SIZE = navigator.hardwareConcurrency;
-export const poolSize = (imagesLength: number) => Math.min(imagesLength, MAX_POOL_SIZE)
+export const poolSize = (imagesLength: number) => pipe(Math.min(imagesLength, MAX_POOL_SIZE), (_) => Math.max(_, imagesLength / 2))
 
 const makePoolLive = (size: number) => EffectWorker.makePoolLayer(Pool, { size }).pipe(
   Layer.provide(BrowserWorker.layer(() => new Worker(WorkerUrl, { type: 'module' })))
@@ -23,7 +23,7 @@ const executePool = (input: WorkerInput[]) => Pool.pipe(
       Effect.flatMap(Chunk.head),
     )), { concurrency: "inherit" })
   ),
-  Effect.flatMap(downloadZip),
+  Effect.flatMap(downloadImages),
   Effect.map(() => stateRegistry.set(showSuccessRx, true)),
   Effect.flatMap(() => Effect.sleep("3 seconds")),
   Effect.map(() => stateRegistry.set(showSuccessRx, false)),

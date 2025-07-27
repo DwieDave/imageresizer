@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 
 export const downloadBlob = (filename: string, blob: Blob) => Effect.try({
-  try: () => URL.createObjectURL(blob),
+  try: () => URL.createObjectURL(new Blob([blob], { type: "application/octet-stream" })),
   catch: () => new Error("Zip Url Creation failed")
 }).pipe(
   // Trigger download
@@ -11,9 +11,7 @@ export const downloadBlob = (filename: string, blob: Blob) => Effect.try({
         const link = document.createElement("a")
         link.href = url
         link.download = filename
-        document.body.appendChild(link)
         link.click()
-        document.body.removeChild(link)
       },
       catch: () => new Error("Failed to download Zip")
     }).pipe(

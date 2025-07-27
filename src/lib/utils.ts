@@ -10,7 +10,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const downloadZip = (processedImages: ProcessedImage[]) => Effect.gen(function*() {
+export const downloadImages = (processedImages: ProcessedImage[]) => Effect.gen(function*() {
+  if (processedImages.length === 1) {
+    const file = processedImages[0]
+    const fileBlob = new Blob([new Uint8Array(file.data)]);
+    return yield* downloadBlob(file.name, fileBlob)
+  }
   const zipBlob = yield* zipFiles(processedImages)
   const dateTime = yield* DateTime.now
   const formattedDate = DateTime.format(dateTime, {
@@ -18,7 +23,7 @@ export const downloadZip = (processedImages: ProcessedImage[]) => Effect.gen(fun
     dateStyle: "short",
     timeStyle: "short"
   }).replace(", ", "_").replace(":", ".");
-  yield* downloadBlob(`resized-images-${formattedDate}.zip`, zipBlob)
+  return yield* downloadBlob(`resized-images-${formattedDate}.zip`, zipBlob)
 })
 
 export const updateImage = (processedImage: ProcessedImage) => Effect.sync(() =>
