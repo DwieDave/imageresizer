@@ -1,7 +1,7 @@
 import { WorkerRunner, Path } from "@effect/platform"
 import { BrowserRuntime } from "@effect/platform-browser"
 import { BrowserWorkerRunner } from "@effect/platform-browser"
-import { Effect, Layer, type Record, Stream } from "effect"
+import { Effect, Layer, pipe, type Record, Stream } from "effect"
 import type { Format, ProcessedImage, WorkerInput } from "@/lib/types"
 import { ImageMagickService } from "@/lib/imagemagick"
 
@@ -9,11 +9,12 @@ const formatReplacementMap: Partial<Record<Format, string>> = {
   jpeg: "jpg"
 }
 
-const newName = (name: string, format: Format) => Effect.gen(function*() {
+const newName = (file: string, format: Format) => Effect.gen(function*() {
   const path = yield* Path.Path
-  return `${path.parse(name).name}.${formatReplacementMap[format] ?? format}`
+  const { name } = path.parse(file)
+  const newFormat = formatReplacementMap[format] ?? format
+  return `${name}.${newFormat}`
 });
-
 
 const processImage = ({ image, id, config }: WorkerInput) =>
   Effect.gen(function*() {
@@ -50,8 +51,11 @@ const processImage = ({ image, id, config }: WorkerInput) =>
     ));
 
 const WorkerLive = Effect.gen(function*() {
-  yield* WorkerRunner.make((input: WorkerInput) =>
-    Stream.fromEffect(processImage(input)));
+  yield* WorkerRunner.make((input: WorkerInput) => pipe(
+    input,
+    processImage,
+    Stream.fromEffect
+  ));
   yield* Effect.log("ImageMagick worker started");
   yield* Effect.addFinalizer(() => Effect.log("ImageMagick worker closed"));
 }).pipe(
