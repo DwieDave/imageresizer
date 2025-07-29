@@ -35,8 +35,8 @@ export const ImageDropzone = () => {
 
   return (
     <Dropzone
-      accept={{ 'image/*': [] }}
-      className="flex-grow"
+      accept={{ "image/*": [] }}
+      className="lg:max-w-2/3 lg:max-h-2/3 h-full w-full"
       disabled={isProcessing}
       maxFiles={Number.POSITIVE_INFINITY}
       onDrop={handleDrop}
