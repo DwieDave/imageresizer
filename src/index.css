@@ -119,11 +119,13 @@
   }
 }
 
+#root, body, html {
+  height: 100%;
+}
 
 #root {
-  --app-padding: 2rem;
-  max-width: 1280px;
+  height:100%;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: var(--app-padding);
   text-align: center;
 }

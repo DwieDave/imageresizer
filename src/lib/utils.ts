@@ -29,6 +29,3 @@ export const downloadImages = (processedImages: ProcessedImage[]) => Effect.gen(
 export const updateImage = (processedImage: ProcessedImage) => Effect.sync(() =>
   stateRegistry.update(imagesRx, (old) => ({ ...old, [processedImage.id]: processedImage }))
 )
-
-
-

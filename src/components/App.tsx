@@ -16,13 +16,14 @@ export const App = () => {
   const nrCpu = poolSize(imageCount)
 
   return (
-    <div className="flex flex-col gap-3 h-[calc(100dvh-2*var(--app-padding))]">
+    <div className="p-8 md:p-12 xl:p-17 flex flex-col gap-3 h-full">
       <Header />
       <ImageDropzone />
       {isProcessing && <div className="flex flex-row items-center gap-3">
         <div className="relative">
           <Cpu />
-          <div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
+          <div className="absolute -bottom-1 -right-1 bg-green-600 text-white 
+            text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">
             {nrCpu}
           </div>
         </div>
