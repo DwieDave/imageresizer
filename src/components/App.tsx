@@ -1,12 +1,12 @@
 "use client";
 import { useRxValue } from "@effect-rx/rx-react";
-import { imageCountRx, isProcessingRx, processedCountRx } from "@/lib/state";
-import { Progress } from "@/components/ui/progress";
-import { Header } from "@/components/Header";
-import { poolSize } from "@/lib/workerPool";
 import { Cpu } from "lucide-react";
-import { Label } from "@/components/ui/label";
+import { Header } from "@/components/Header";
 import { ImageDropzone } from "@/components/ImageDropzone";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import { imageCountRx, isProcessingRx, processedCountRx } from "@/lib/state";
+import { poolSize } from "@/lib/workerPool";
 
 export const App = () => {
 	const imageCount = useRxValue(imageCountRx);

@@ -1,3 +1,5 @@
+import { useRxSet, useRxValue } from "@effect-rx/rx-react";
+import { CircleCheckBig, LoaderCircle } from "lucide-react";
 import {
 	Dropzone,
 	DropzoneContent,
@@ -9,11 +11,8 @@ import {
 	processedCountRx,
 	showSuccessRx,
 } from "@/lib/state";
-import { makeImageId, type Image, type ImageId } from "@/lib/types";
+import { type Image, type ImageId, makeImageId } from "@/lib/types";
 import { processImages } from "@/lib/workerPool";
-import { useRxSet, useRxValue } from "@effect-rx/rx-react";
-
-import { CircleCheckBig, LoaderCircle } from "lucide-react";
 
 export const ImageDropzone = () => {
 	const setImages = useRxSet(imagesRx);

@@ -1,9 +1,8 @@
-import { WorkerRunner, Path } from "@effect/platform";
-import { BrowserRuntime } from "@effect/platform-browser";
-import { BrowserWorkerRunner } from "@effect/platform-browser";
+import { Path, WorkerRunner } from "@effect/platform";
+import { BrowserRuntime, BrowserWorkerRunner } from "@effect/platform-browser";
 import { Effect, Layer, pipe, type Record, Stream } from "effect";
-import type { Format, ProcessedImage, WorkerInput } from "@/lib/types";
 import { ImageMagickService } from "@/lib/imagemagick";
+import type { Format, ProcessedImage, WorkerInput } from "@/lib/types";
 
 const formatReplacementMap: Partial<Record<Format, string>> = {
 	jpeg: "jpg",

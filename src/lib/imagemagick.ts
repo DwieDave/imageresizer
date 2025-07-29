@@ -1,11 +1,11 @@
 import {
-	initializeImageMagick,
 	ImageMagick,
+	initializeImageMagick,
 	Magick,
 } from "@imagemagick/magick-wasm";
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
 import { Effect } from "effect";
-import { formatMap, type Configuration } from "@/lib/types";
+import { type Configuration, formatMap } from "@/lib/types";
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 	"ImageMagickService",

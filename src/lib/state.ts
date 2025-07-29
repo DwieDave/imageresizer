@@ -1,7 +1,7 @@
-import { Registry, Rx } from "@effect-rx/rx-react";
-import { Record as R, pipe, Array as A } from "effect";
-import { Configuration, type Image, type ImageId } from "@/lib/types";
 import { BrowserKeyValueStore } from "@effect/platform-browser";
+import { Registry, Rx } from "@effect-rx/rx-react";
+import { Array as A, pipe, Record as R } from "effect";
+import { Configuration, type Image, type ImageId } from "@/lib/types";
 
 export const stateRegistry = Registry.make();
 

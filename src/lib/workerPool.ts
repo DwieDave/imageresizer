@@ -1,14 +1,16 @@
+import { Worker as EffectWorker } from "@effect/platform";
+import { BrowserRuntime, BrowserWorker } from "@effect/platform-browser";
 import {
+	Array as A,
 	Chunk,
 	Context,
 	Effect,
 	Layer,
 	pipe,
-	Stream,
-	Array as A,
 	Record as R,
+	Stream,
 } from "effect";
-import { Worker as EffectWorker } from "@effect/platform";
+import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
 import type {
 	Image,
 	ImageId,
@@ -16,10 +18,8 @@ import type {
 	ProcessedImage,
 	WorkerInput,
 } from "@/lib/types";
-import { BrowserRuntime, BrowserWorker } from "@effect/platform-browser";
-import WorkerUrl from "@/lib/worker.ts?worker&url";
 import { downloadImages, updateImage } from "@/lib/utils";
-import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
+import WorkerUrl from "@/lib/worker.ts?worker&url";
 
 const Pool = Context.GenericTag<
 	MyWorkerPool,
