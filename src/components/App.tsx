@@ -19,7 +19,7 @@ export const App = () => {
     <div className="flex flex-col gap-3 h-[calc(100dvh-2*var(--app-padding))]">
       <Header />
       <div className="w-full h-full flex justify-center items-center gap-3 flex-col ">
-        <ImageDropzone />
+        <ImageDropzone className="lg:max-w-2/3 lg:max-h-2/3 h-full w-full" />
         {isProcessing && (
           <div className="flex flex-row w-full lg:max-w-2/3 items-center gap-3">
             <div className="relative">
