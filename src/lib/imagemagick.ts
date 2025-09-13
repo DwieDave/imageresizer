@@ -87,7 +87,7 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 											const result = data.buffer.slice(
 												data.byteOffset,
 												data.byteOffset + data.byteLength,
-											);
+											) as ArrayBuffer;
 											resolve(result);
 										});
 									});

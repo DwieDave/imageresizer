@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { DateTime, Effect } from "effect";
 import { twMerge } from "tailwind-merge";
 import { downloadBlob } from "@/lib/download.ts";
-import { imagesRx, stateRegistry } from "@/lib/state.ts";
+import { imagesAtom, stateRegistry } from "@/lib/state.ts";
 import type { ProcessedImage } from "@/lib/types.ts";
 import { zipFiles } from "@/lib/zip.ts";
 
@@ -31,7 +31,7 @@ export const downloadImages = (processedImages: ProcessedImage[]) =>
 
 export const updateImage = (processedImage: ProcessedImage) =>
 	Effect.sync(() =>
-		stateRegistry.update(imagesRx, (old) => ({
+		stateRegistry.update(imagesAtom, (old) => ({
 			...old,
 			[processedImage.id]: processedImage,
 		})),

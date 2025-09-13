@@ -1,5 +1,5 @@
 import "./index.css";
-import { RegistryContext } from "@effect-rx/rx-react";
+import { RegistryContext } from "@effect-atom/atom-react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "@/components/App.tsx";

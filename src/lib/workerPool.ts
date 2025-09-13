@@ -10,7 +10,7 @@ import {
 	Record as R,
 	Stream,
 } from "effect";
-import { configurationRx, showSuccessRx, stateRegistry } from "@/lib/state";
+import { configurationAtom, showSuccessAtom, stateRegistry } from "@/lib/state";
 import type {
 	Image,
 	ImageId,
@@ -55,9 +55,9 @@ const executePool = (input: WorkerInput[]) =>
 			),
 		),
 		Effect.flatMap(downloadImages),
-		Effect.map(() => stateRegistry.set(showSuccessRx, true)),
+		Effect.map(() => stateRegistry.set(showSuccessAtom, true)),
 		Effect.flatMap(() => Effect.sleep("3 seconds")),
-		Effect.map(() => stateRegistry.set(showSuccessRx, false)),
+		Effect.map(() => stateRegistry.set(showSuccessAtom, false)),
 		Effect.provide(pipe(input.length, poolSize, makePoolLive)),
 		BrowserRuntime.runMain,
 	);
@@ -72,7 +72,7 @@ export const processImages = (images: Record<ImageId, Image>) =>
 				({
 					id: imageId,
 					image,
-					config: stateRegistry.get(configurationRx),
+					config: stateRegistry.get(configurationAtom),
 				}) satisfies WorkerInput,
 		),
 		executePool,

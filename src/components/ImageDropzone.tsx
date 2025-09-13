@@ -1,4 +1,5 @@
-import { useRxSet, useRxValue } from "@effect-rx/rx-react";
+import { useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import { Array as A, pipe } from "effect";
 import { CircleCheckBig, LoaderCircle } from "lucide-react";
 import {
 	Dropzone,
@@ -6,44 +7,50 @@ import {
 	DropzoneEmptyState,
 } from "@/components/ui/kibo-ui/dropzone";
 import {
-	imagesRx,
-	isProcessingRx,
-	processedCountRx,
-	showSuccessRx,
+	imagesAtom,
+	isProcessingAtom,
+	processedCountAtom,
+	showSuccessAtom,
 } from "@/lib/state";
 import { type Image, type ImageId, makeImageId } from "@/lib/types";
 import { processImages } from "@/lib/workerPool";
 
+const SuccessMessage = ({ processedCount }: { processedCount: number }) => (
+	<>
+		<CircleCheckBig className="size-10" color="#28d401" />
+		{processedCount} images successfully processed
+		<br /> and downloaded as .zip
+	</>
+);
+
+const ActiveDropzone = () => (
+	<>
+		<DropzoneEmptyState />
+		<DropzoneContent />
+	</>
+);
+
 export const ImageDropzone = () => {
-	const setImages = useRxSet(imagesRx);
-	const showSuccess = useRxValue(showSuccessRx);
-	const processedCount = useRxValue(processedCountRx);
-	const isProcessing = useRxValue(isProcessingRx);
+	const setImages = useAtomSet(imagesAtom);
+	const showSuccess = useAtomValue(showSuccessAtom);
+	const processedCount = useAtomValue(processedCountAtom);
+	const isProcessing = useAtomValue(isProcessingAtom);
 
-	const SuccessMessage = () => (
-		<>
-			<CircleCheckBig className="size-10" color="#28d401" />
-			{processedCount} images successfully processed
-			<br /> and downloaded as .zip
-		</>
-	);
-
-	const ActiveDropzone = () => (
-		<>
-			<DropzoneEmptyState />
-			<DropzoneContent />
-		</>
-	);
-
-	const handleDrop = (currentFiles: File[]) => {
-		const imgs: Record<ImageId, Image> = {};
-		for (const file of currentFiles) {
-			const newImageId = makeImageId(self.crypto.randomUUID());
-			imgs[newImageId] = { file, processed: false };
-		}
-		setImages(imgs);
-		processImages(imgs);
-	};
+	const handleDrop = (currentFiles: File[]) =>
+		pipe(
+			A.reduce<File, Record<ImageId, Image>>(currentFiles, {}, (acc, file) => {
+				const imageId = makeImageId(self.crypto.randomUUID());
+				acc[imageId] = {
+					file,
+					processed: false,
+				};
+				return acc;
+			}),
+			(_) => {
+				setImages(_);
+				processImages(_);
+			},
+		);
 
 	return (
 		<Dropzone
@@ -55,7 +62,7 @@ export const ImageDropzone = () => {
 			onError={console.error}
 		>
 			{showSuccess ? (
-				<SuccessMessage />
+				<SuccessMessage processedCount={processedCount} />
 			) : !isProcessing ? (
 				<ActiveDropzone />
 			) : (

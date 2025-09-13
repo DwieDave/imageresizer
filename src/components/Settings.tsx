@@ -1,5 +1,10 @@
-import { useRx } from "@effect-rx/rx-react";
+/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
+
+import { useAtom } from "@effect-atom/atom-react";
+import { Cog } from "lucide-react";
+import type React from "react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,11 +20,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { configurationRx } from "@/lib/state";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormatSchema, type Configuration, type Format } from "@/lib/types";
-import type React from "react";
-import { Cog } from "lucide-react";
+import { configurationAtom } from "@/lib/state";
+import { type Configuration, type Format, FormatSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type ClassName = React.HTMLAttributes<HTMLDivElement>["className"];
@@ -30,7 +32,7 @@ export const Settings = ({
 	className: string;
 	buttonClassName: string;
 }) => {
-	const [config, setConfig] = useRx(configurationRx);
+	const [config, setConfig] = useAtom(configurationAtom);
 	const gridItemClass: ClassName = "grid grid-cols-3 items-center gap-4";
 	const sectionWrapper: ClassName =
 		"hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950";

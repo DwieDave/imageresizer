@@ -1,25 +1,26 @@
 import { BrowserKeyValueStore } from "@effect/platform-browser";
-import { Registry, Rx } from "@effect-rx/rx-react";
+import { Registry, Atom } from "@effect-atom/atom-react";
 import { Array as A, pipe, Record as R } from "effect";
 import { Configuration, type Image, type ImageId } from "@/lib/types";
 
 export const stateRegistry = Registry.make();
 
-export const imagesRx = Rx.make<Record<ImageId, Image>>({});
-export const imageCountRx = Rx.map(imagesRx, (imgs) => R.size(imgs));
+export const imagesAtom = Atom.make<Record<ImageId, Image>>({});
+export const imageCountAtom = Atom.map(imagesAtom, (imgs) => R.size(imgs));
 
-export const processedImagesRx = Rx.map(imagesRx, (imgs) =>
+export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
 	R.filter(imgs, (img) => img.processed),
 );
-export const processedImageArrayRx = Rx.map(processedImagesRx, (imgRecord) =>
-	R.toEntries(imgRecord).map(([_, img]) => img),
+export const processedImageArrayAtom = Atom.map(
+	processedImagesAtom,
+	(imgRecord) => R.toEntries(imgRecord).map(([_, img]) => img),
 );
-export const processedCountRx = Rx.map(processedImagesRx, (imgs) =>
+export const processedCountAtom = Atom.map(processedImagesAtom, (imgs) =>
 	R.size(imgs),
 );
 
-export const isProcessingRx = Rx.map(
-	imagesRx,
+export const isProcessingAtom = Atom.map(
+	imagesAtom,
 	(imgs) =>
 		pipe(
 			imgs,
@@ -28,7 +29,7 @@ export const isProcessingRx = Rx.map(
 		) > 0,
 );
 
-export const filesRx = Rx.map(imagesRx, (imageRecord) =>
+export const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
 	pipe(
 		imageRecord,
 		R.filter((image) => !image.processed),
@@ -37,8 +38,8 @@ export const filesRx = Rx.map(imagesRx, (imageRecord) =>
 	),
 );
 
-export const configurationRx = Rx.kvs({
-	runtime: Rx.runtime(BrowserKeyValueStore.layerLocalStorage),
+export const configurationAtom = Atom.kvs({
+	runtime: Atom.runtime(BrowserKeyValueStore.layerLocalStorage),
 	key: "configuration",
 	schema: Configuration,
 	defaultValue: () =>
@@ -60,4 +61,4 @@ export const configurationRx = Rx.kvs({
 		}),
 });
 
-export const showSuccessRx = Rx.make(false);
+export const showSuccessAtom = Atom.make(false);

@@ -1,17 +1,22 @@
+/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
 "use client";
-import { useRxValue } from "@effect-rx/rx-react";
+import { useAtomValue } from "@effect-atom/atom-react";
 import { Cpu } from "lucide-react";
 import { Header } from "@/components/Header";
 import { ImageDropzone } from "@/components/ImageDropzone";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { imageCountRx, isProcessingRx, processedCountRx } from "@/lib/state";
+import {
+	imageCountAtom,
+	isProcessingAtom,
+	processedCountAtom,
+} from "@/lib/state";
 import { poolSize } from "@/lib/workerPool";
 
 export const App = () => {
-	const imageCount = useRxValue(imageCountRx);
-	const processedCount = useRxValue(processedCountRx);
-	const isProcessing = useRxValue(isProcessingRx);
+	const imageCount = useAtomValue(imageCountAtom);
+	const processedCount = useAtomValue(processedCountAtom);
+	const isProcessing = useAtomValue(isProcessingAtom);
 	const progressPercent = Math.round((processedCount / imageCount) * 100);
 	const nrCpu = poolSize(imageCount);
 
