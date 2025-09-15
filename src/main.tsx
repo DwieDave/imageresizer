@@ -6,8 +6,10 @@ import { App } from "@/components/App.tsx";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { stateRegistry } from "@/lib/state.ts";
 
-// biome-ignore lint/style/noNonNullAssertion: If this doesn't exist we have a problem.
-createRoot(document.getElementById("root")!).render(
+const root = document.getElementById("root");
+if (!root) throw new Error("This is not good.");
+
+createRoot(root).render(
 	<StrictMode>
 		<ThemeProvider defaultTheme="dark" storageKey="ui-theme">
 			<RegistryContext.Provider value={stateRegistry}>

@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
-
 import { useAtom } from "@effect-atom/atom-react";
 import { Cog } from "lucide-react";
 import type React from "react";
@@ -71,7 +69,6 @@ export const Settings = ({
 
 						<div className={sectionWrapper}>
 							<Checkbox
-								id="compressionToggle"
 								className={cn(sectionCheckBox, "cursor-pointer")}
 								checked={config.operations.compress}
 								onCheckedChange={updateOperationToggle("compress")}
@@ -116,7 +113,6 @@ export const Settings = ({
 						{/* Resize Section */}
 						<div className={sectionWrapper}>
 							<Checkbox
-								id="resizeToggle"
 								className={sectionCheckBox}
 								checked={config.operations.resize}
 								onCheckedChange={updateOperationToggle("resize")}
@@ -136,7 +132,6 @@ export const Settings = ({
 										<div className={gridItemClass}>
 											<Label htmlFor="longestSideToggle">Longest Side</Label>
 											<Checkbox
-												id="longestSideToggle"
 												checked={config.dimensions._tag === "longestSide"}
 												onCheckedChange={(checked) =>
 													setConfig((old) => ({
@@ -156,7 +151,6 @@ export const Settings = ({
 										{config.dimensions._tag === "longestSide" ? (
 											<div className="flex flex-row items-center gap-2">
 												<Input
-													id="longestSide"
 													value={config.dimensions.longestSide}
 													onChange={(event) =>
 														setConfig((old) => ({
@@ -174,43 +168,39 @@ export const Settings = ({
 												<span>px</span>
 											</div>
 										) : (
-											<>
-												<div className="flex flex-row gap-3 items-center">
-													<Input
-														id="width"
-														placeholder="Width"
-														type="number"
-														value={config.dimensions.width}
-														onChange={({ currentTarget }) =>
-															setConfig((old: Configuration) => ({
-																...old,
-																dimensions: {
-																	...old.dimensions,
-																	width: Number(currentTarget.value),
-																},
-															}))
-														}
-														min="1"
-														className="col-span-2 h-8"
-													/>
-													&times;
-													<Input
-														id="height"
-														placeholder="Height"
-														value={config.dimensions.height}
-														onChange={(event) =>
-															setConfig((old: Configuration) => ({
-																...old,
-																dimensions: {
-																	...old.dimensions,
-																	height: Number(event.currentTarget.value),
-																},
-															}))
-														}
-														className="col-span-2 h-8"
-													/>
-												</div>
-											</>
+											<div className="flex flex-row gap-3 items-center">
+												<Input
+													placeholder="Width"
+													type="number"
+													value={config.dimensions.width}
+													onChange={({ currentTarget }) =>
+														setConfig((old: Configuration) => ({
+															...old,
+															dimensions: {
+																...old.dimensions,
+																width: Number(currentTarget.value),
+															},
+														}))
+													}
+													min="1"
+													className="col-span-2 h-8"
+												/>
+												&times;
+												<Input
+													placeholder="Height"
+													value={config.dimensions.height}
+													onChange={(event) =>
+														setConfig((old: Configuration) => ({
+															...old,
+															dimensions: {
+																...old.dimensions,
+																height: Number(event.currentTarget.value),
+															},
+														}))
+													}
+													className="col-span-2 h-8"
+												/>
+											</div>
 										)}
 									</div>
 								)}

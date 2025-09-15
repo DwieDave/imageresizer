@@ -5,6 +5,7 @@ import { downloadBlob } from "@/lib/download.ts";
 import { imagesAtom, stateRegistry } from "@/lib/state.ts";
 import type { ProcessedImage } from "@/lib/types.ts";
 import { zipFiles } from "@/lib/zip.ts";
+import { isError } from "effect/Predicate";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -36,3 +37,6 @@ export const updateImage = (processedImage: ProcessedImage) =>
 			[processedImage.id]: processedImage,
 		})),
 	);
+
+export const toCauseString = (err: unknown): string =>
+	isError(err) ? err.message : "Unknown Cause";

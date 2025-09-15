@@ -1,22 +1,22 @@
 import { BrowserKeyValueStore } from "@effect/platform-browser";
-import { Registry, Atom } from "@effect-atom/atom-react";
-import { Array as A, pipe, Record as R } from "effect";
+import { Atom, Registry } from "@effect-atom/atom-react";
+import { Array, pipe, Record } from "effect";
 import { Configuration, type Image, type ImageId } from "@/lib/types";
 
 export const stateRegistry = Registry.make();
 
 export const imagesAtom = Atom.make<Record<ImageId, Image>>({});
-export const imageCountAtom = Atom.map(imagesAtom, (imgs) => R.size(imgs));
+export const imageCountAtom = Atom.map(imagesAtom, (imgs) => Record.size(imgs));
 
 export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
-	R.filter(imgs, (img) => img.processed),
+	Record.filter(imgs, (img) => img.processed),
 );
 export const processedImageArrayAtom = Atom.map(
 	processedImagesAtom,
-	(imgRecord) => R.toEntries(imgRecord).map(([_, img]) => img),
+	(imgRecord) => Record.toEntries(imgRecord).map(([_, img]) => img),
 );
 export const processedCountAtom = Atom.map(processedImagesAtom, (imgs) =>
-	R.size(imgs),
+	Record.size(imgs),
 );
 
 export const isProcessingAtom = Atom.map(
@@ -24,17 +24,17 @@ export const isProcessingAtom = Atom.map(
 	(imgs) =>
 		pipe(
 			imgs,
-			R.filter((img) => !img.processed),
-			R.size,
+			Record.filter((img) => !img.processed),
+			Record.size,
 		) > 0,
 );
 
 export const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
 	pipe(
 		imageRecord,
-		R.filter((image) => !image.processed),
-		R.toEntries,
-		A.map(([_, image]) => image.file),
+		Record.filter((image) => !image.processed),
+		Record.toEntries,
+		Array.map(([_, image]) => image.file),
 	),
 );
 
@@ -62,3 +62,7 @@ export const configurationAtom = Atom.kvs({
 });
 
 export const showSuccessAtom = Atom.make(false);
+
+export const errorAtom = Atom.make<
+	{ show: false } | { show: true; message: string; cause?: string }
+>({ show: false });

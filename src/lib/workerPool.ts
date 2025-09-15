@@ -1,16 +1,27 @@
 import { Worker as EffectWorker } from "@effect/platform";
+import type { WorkerError } from "@effect/platform/WorkerError";
 import { BrowserRuntime, BrowserWorker } from "@effect/platform-browser";
 import {
-	Array as A,
+	Array,
 	Chunk,
+	Console,
 	Context,
 	Effect,
+	flow,
 	Layer,
 	pipe,
-	Record as R,
+	Record,
 	Stream,
 } from "effect";
-import { configurationAtom, showSuccessAtom, stateRegistry } from "@/lib/state";
+import type { NoSuchElementException } from "effect/Cause";
+import { isError } from "effect/Predicate";
+import {
+	configurationAtom,
+	errorAtom,
+	imagesAtom,
+	showSuccessAtom,
+	stateRegistry,
+} from "@/lib/state";
 import type {
 	Image,
 	ImageId,
@@ -19,7 +30,7 @@ import type {
 	WorkerInput,
 } from "@/lib/types";
 import { downloadImages, updateImage } from "@/lib/utils";
-import WorkerUrl from "@/lib/worker.ts?worker&url";
+import workerUrl from "@/lib/worker.ts?worker&url";
 
 const Pool = Context.GenericTag<
 	MyWorkerPool,
@@ -34,9 +45,11 @@ export const poolSize = (imagesLength: number) =>
 const makePoolLive = (size: number) =>
 	EffectWorker.makePoolLayer(Pool, { size }).pipe(
 		Layer.provide(
-			BrowserWorker.layer(() => new Worker(WorkerUrl, { type: "module" })),
+			BrowserWorker.layer(() => new Worker(workerUrl, { type: "module" })),
 		),
 	);
+
+const makePool = flow(poolSize, makePoolLive);
 
 const executePool = (input: WorkerInput[]) =>
 	Pool.pipe(
@@ -54,26 +67,57 @@ const executePool = (input: WorkerInput[]) =>
 				{ concurrency: "inherit" },
 			),
 		),
+		Effect.provide(makePool(input.length)),
+	);
+
+export const preProcessImages = (
+	images: Record<ImageId, Image>,
+): WorkerInput[] =>
+	pipe(
+		images,
+		Record.filter((_) => !_.processed),
+		Record.toEntries,
+		(images) => ({ images, config: stateRegistry.get(configurationAtom) }),
+		({ images, config }) =>
+			Array.map(
+				images,
+				([id, image]) =>
+					({
+						id,
+						image,
+						config,
+					}) satisfies WorkerInput,
+			),
+	);
+
+export const postProcessImages = (
+	processedImagesFx: Effect.Effect<
+		ProcessedImage[],
+		WorkerError | NoSuchElementException
+	>,
+) =>
+	processedImagesFx.pipe(
 		Effect.flatMap(downloadImages),
 		Effect.map(() => stateRegistry.set(showSuccessAtom, true)),
 		Effect.flatMap(() => Effect.sleep("3 seconds")),
 		Effect.map(() => stateRegistry.set(showSuccessAtom, false)),
-		Effect.provide(pipe(input.length, poolSize, makePoolLive)),
-		BrowserRuntime.runMain,
+		Effect.catchTags({
+			WorkerError: (error) => {
+				Console.error(error);
+				stateRegistry.set(errorAtom, {
+					show: true,
+					message: error.message,
+					cause: isError(error.cause) ? error.cause.message : undefined,
+				});
+				stateRegistry.set(imagesAtom, {});
+				return Effect.void;
+			},
+		}),
 	);
 
-export const processImages = (images: Record<ImageId, Image>) =>
-	pipe(
-		images,
-		R.filter((_) => !_.processed),
-		R.toEntries,
-		A.map(
-			([imageId, image]) =>
-				({
-					id: imageId,
-					image,
-					config: stateRegistry.get(configurationAtom),
-				}) satisfies WorkerInput,
-		),
-		executePool,
-	);
+export const processImages = flow(
+	preProcessImages,
+	executePool,
+	postProcessImages,
+	BrowserRuntime.runMain,
+);

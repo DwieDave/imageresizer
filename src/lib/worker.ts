@@ -1,7 +1,9 @@
 import { Path, WorkerRunner } from "@effect/platform";
+import { WorkerError } from "@effect/platform/WorkerError";
 import { BrowserRuntime, BrowserWorkerRunner } from "@effect/platform-browser";
-import { Effect, Layer, pipe, type Record, Stream } from "effect";
-import { ImageMagickService } from "@/lib/imagemagick";
+import { Effect, flow, Layer, type Record, Stream } from "effect";
+import { isError } from "effect/Predicate";
+import { ImageMagickService, ImageProcessingError } from "@/lib/imagemagick";
 import type { Format, ProcessedImage, WorkerInput } from "@/lib/types";
 
 const formatReplacementMap: Partial<Record<Format, string>> = {
@@ -25,7 +27,11 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 		// Convert File to ArrayBuffer
 		const imageData = yield* Effect.tryPromise({
 			try: () => image.file.arrayBuffer(),
-			catch: (error) => new Error(`Failed to read file: ${error}`),
+			catch: (error) =>
+				new ImageProcessingError({
+					operation: "READ",
+					message: `Failed to read input file: ${isError(error) ? error.message : "Unknown cause"}`,
+				}),
 		});
 
 		// Process the image
@@ -47,15 +53,14 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 
 		return result;
 	}).pipe(
-		Effect.catchAll((error) =>
-			Effect.logError(`Failed to process ${image.file.name}: ${error.message}`),
-		),
+		Effect.catchAll((error) => {
+			return new WorkerError({ reason: "unknown", cause: error });
+		}),
 	);
 
 const WorkerLive = Effect.gen(function* () {
-	yield* WorkerRunner.make((input: WorkerInput) =>
-		pipe(input, processImage, Stream.fromEffect),
-	);
+	const streamFromInput = flow(processImage, Stream.fromEffect);
+	yield* WorkerRunner.make(streamFromInput);
 	yield* Effect.log("ImageMagick worker started");
 	yield* Effect.addFinalizer(() => Effect.log("ImageMagick worker closed"));
 }).pipe(
