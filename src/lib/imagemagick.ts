@@ -1,15 +1,15 @@
 import {
 	type IMagickImage,
-	ImageMagick,
 	initializeImageMagick,
 	Magick,
+	MagickImage,
 } from "@imagemagick/magick-wasm";
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
-import { Cause, Chunk, Data, Effect, Exit, flow, Option } from "effect";
+import { Context, Data, Effect, Layer } from "effect";
 import { type Configuration, formatMap } from "@/lib/types";
-import { toCauseString } from "./utils";
+import { toCauseString, uint8arrayToArrayBuffer } from "./utils";
 
-class ImageMagickError extends Data.TaggedError("ImageMagickError")<{
+export class ImageMagickError extends Data.TaggedError("ImageMagickError")<{
 	stage: "FETCH" | "INITIALIZE";
 	message: string;
 	cause: unknown;
@@ -22,32 +22,38 @@ export class ImageProcessingError extends Data.TaggedError(
 	message: string;
 }> {}
 
+export class ImageMagickWasmBytes extends Context.Tag(
+	"app/ImageMagickFetchWasmBytes",
+)<ImageMagickWasmBytes, Effect.Effect<ArrayBufferLike, ImageMagickError>>() {}
+
+const FetchImageMagickWasmBytes = Layer.succeed(
+	ImageMagickWasmBytes,
+	Effect.tryPromise({
+		try: async () => {
+			const response = await fetch(wasmUrl);
+			if (!response.ok) {
+				throw new Error(`Failed to load WASM: ${response.statusText}`);
+			}
+			return response.arrayBuffer();
+		},
+		catch: (cause) =>
+			new ImageMagickError({
+				stage: "FETCH",
+				message: `Failed to load ImageMagick WASM Binary: ${toCauseString(cause)}`,
+				cause,
+			}),
+	}),
+);
+
 export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 	"ImageMagickService",
 	{
 		accessors: true,
+		dependencies: [FetchImageMagickWasmBytes],
 		effect: Effect.gen(function* () {
-			let isInitialized = false;
-
-			const fetchWasmBytes = Effect.tryPromise({
-				try: async () => {
-					const response = await fetch(wasmUrl);
-					if (!response.ok) {
-						throw new Error(`Failed to load WASM: ${response.statusText}`);
-					}
-					return response.arrayBuffer();
-				},
-				catch: (cause) =>
-					new ImageMagickError({
-						stage: "FETCH",
-						message: `Failed to load ImageMagick WASM Binary: ${toCauseString(cause)}`,
-						cause,
-					}),
-			});
+			const fetchWasmBytes = yield* ImageMagickWasmBytes;
 
 			const initialize = Effect.gen(function* () {
-				if (isInitialized) return;
-
 				yield* Effect.log("Initializing ImageMagick WASM...");
 				const wasmBytes = yield* fetchWasmBytes;
 
@@ -61,127 +67,94 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 						}),
 				});
 
-				isInitialized = true;
 				yield* Effect.log(`${Magick.imageMagickVersion} initialized`);
 			});
 
-			const readImage = (
-				imageData: ArrayBuffer,
-				callback: (
-					image: IMagickImage,
-				) => Effect.Effect<ArrayBuffer, ImageProcessingError>,
-			) =>
-				Effect.async<ArrayBuffer, ImageProcessingError>((resume) => {
-					try {
-						ImageMagick.read(new Uint8Array(imageData), (image) => {
-							const afterCallback = Effect.runSyncExit(callback(image));
-							if (Exit.isSuccess(afterCallback)) {
-								return resume(Effect.succeed(afterCallback.value));
-							}
-							const failures = Cause.failures(afterCallback.cause).pipe(
-								Chunk.head,
-							);
-							if (Option.isSome(failures)) {
-								return resume(Effect.fail(failures.value));
-							}
-							return resume(
-								Effect.fail(
-									new ImageProcessingError({
-										operation: "UNKNOWN",
-										message: "Unknown error occurred.",
-									}),
-								),
-							);
-						});
-					} catch (error) {
-						return resume(
-							Effect.fail(
-								new ImageProcessingError({
-									operation: "READ",
-									message: `Error while reading an image: ${toCauseString(error)}`,
-								}),
-							),
-						);
-					}
-				});
+			yield* initialize;
 
-			const manipulateImage =
-				(config: Configuration) => (image: IMagickImage) =>
-					Effect.gen(function* () {
-						try {
-							const [width, height] = [image.width, image.height];
-							const aspectRatio = width / height;
-							const { dimensions } = config;
-
-							if (config.operations.resize) {
-								const newDimensions =
-									dimensions._tag === "widthHeight"
-										? {
-												width: dimensions.width,
-												height: dimensions.height,
-											}
-										: {
-												width:
-													width > height
-														? dimensions.longestSide
-														: dimensions.longestSide / aspectRatio,
-												height:
-													height > width
-														? dimensions.longestSide
-														: dimensions.longestSide / aspectRatio,
-											};
-
-								image.resize(newDimensions.width, newDimensions.height);
-							}
-
-							if (config.operations.compress)
-								image.quality = config.compression * 100;
-							return yield* Effect.succeed(image);
-						} catch (error) {
-							return yield* Effect.fail(
-								new ImageProcessingError({
-									operation: "MANIPULATE",
-									message: `Error while manipulating image: ${toCauseString(error)}`,
-								}),
-							);
+			const calculateDimensions = ([{ width, height }, { dimensions }]: [
+				{ width: number; height: number },
+				Configuration,
+			]) => {
+				const aspectRatio = width / height;
+				return dimensions._tag === "widthHeight"
+					? {
+							width: dimensions.width,
+							height: dimensions.height,
 						}
-					});
+					: {
+							width:
+								width > height
+									? dimensions.longestSide
+									: dimensions.longestSide / aspectRatio,
+							height:
+								height > width
+									? dimensions.longestSide
+									: dimensions.longestSide / aspectRatio,
+						};
+			};
 
-			const writeImage = (config: Configuration) => (image: IMagickImage) =>
-				Effect.async<ArrayBuffer, ImageProcessingError>((resume) => {
-					try {
-						const outputFormat = formatMap[config.export.format ?? "jpeg"];
-						image.write(outputFormat, (data) => {
-							const result = data.buffer.slice(
-								data.byteOffset,
-								data.byteOffset + data.byteLength,
-							) as ArrayBuffer;
-							resume(Effect.succeed(result));
-						});
-					} catch (error) {
-						resume(
-							Effect.fail(
-								new ImageProcessingError({
-									operation: "WRITE",
-									message: `Error while writing a file: ${toCauseString(error)}`,
-								}),
-							),
-						);
-					}
+			const transform = (config: Configuration) => (image: IMagickImage) => {
+				const [width, height] = [image.width, image.height];
+
+				if (config.operations.resize) {
+					const newDimensions = calculateDimensions([
+						{ width, height },
+						config,
+					]);
+
+					image.resize(newDimensions.width, newDimensions.height);
+				}
+
+				if (config.operations.compress)
+					image.quality = config.compression * 100;
+			};
+
+			const outputFormat = (config: Configuration) =>
+				formatMap[config.export.format ?? "jpeg"];
+
+			const read = (imageData: ArrayBuffer) =>
+				Effect.try({
+					try: () => {
+						const image = MagickImage.create();
+						image.read(new Uint8Array(imageData));
+						return image;
+					},
+					catch: (error) =>
+						new ImageProcessingError({
+							operation: "READ",
+							message: `Error while reading an image: ${toCauseString(error)}`,
+						}),
+				}).pipe(
+					Effect.tap((image) =>
+						Effect.addFinalizer(() => Effect.sync(() => image.dispose())),
+					),
+				);
+
+			const write = (config: Configuration) => (image: IMagickImage) =>
+				Effect.tryPromise({
+					try: () =>
+						new Promise<ArrayBuffer>((resolve) => {
+							image.write(outputFormat(config), (data) => {
+								const result = uint8arrayToArrayBuffer(data);
+								resolve(result);
+							});
+						}),
+					catch: (error) =>
+						new ImageProcessingError({
+							operation: "WRITE",
+							message: `Error while writing an image: ${toCauseString(error)}`,
+						}),
 				});
 
 			const processImage = (imageData: ArrayBuffer, config: Configuration) =>
-				Effect.gen(function* () {
-					yield* initialize;
-					const pipeline = flow(
-						manipulateImage(config),
-						Effect.flatMap(writeImage(config)),
-					);
+				read(imageData).pipe(
+					Effect.tap(transform(config)),
+					Effect.flatMap(write(config)),
+					Effect.scoped,
+				);
 
-					return yield* readImage(imageData, pipeline);
-				});
-
-			return { initialize, processImage, fetchWasmBytes } as const;
+			return { initialize, processImage } as const;
 		}),
 	},
 ) {}

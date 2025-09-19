@@ -54,6 +54,7 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 		return result;
 	}).pipe(
 		Effect.catchAll((error) => {
+			console.error(error);
 			return new WorkerError({ reason: "unknown", cause: error });
 		}),
 	);

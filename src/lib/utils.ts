@@ -11,11 +11,25 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
+export const arrayBufferToBlob = (buffer: ArrayBuffer) =>
+	new Blob([new Uint8Array(buffer)]);
+
+export const arrayBufferToUint8Array = (buffer: ArrayBuffer) =>
+	new Uint8Array(buffer);
+
+export const uint8arrayToArrayBuffer = (
+	data: Uint8Array<ArrayBufferLike>,
+): ArrayBuffer =>
+	data.buffer.slice(
+		data.byteOffset,
+		data.byteOffset + data.byteLength,
+	) as ArrayBuffer;
+
 export const downloadImages = (processedImages: ProcessedImage[]) =>
 	Effect.gen(function* () {
 		if (processedImages.length === 1) {
 			const file = processedImages[0];
-			const fileBlob = new Blob([new Uint8Array(file.data)]);
+			const fileBlob = arrayBufferToBlob(file.data);
 			return yield* downloadBlob(file.name, fileBlob);
 		}
 		const zipBlob = yield* zipFiles(processedImages);
