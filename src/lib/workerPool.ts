@@ -37,7 +37,7 @@ const Pool = Context.GenericTag<
 	EffectWorker.WorkerPool<WorkerInput, ProcessedImage>
 >("@app/MyWorkerPool");
 
-const MAX_POOL_SIZE = navigator.hardwareConcurrency;
+export const MAX_POOL_SIZE = navigator.hardwareConcurrency;
 
 export const poolSize = (nrCores: number) => (imagesLength: number) =>
 	pipe(imagesLength / 2, Math.round, (_) => Math.min(_, nrCores));

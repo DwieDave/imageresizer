@@ -2,11 +2,16 @@ import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { Atom, Registry } from "@effect-atom/atom-react";
 import { Array, pipe, Record } from "effect";
 import { Configuration, type Image, type ImageId } from "@/lib/types";
+import { MAX_POOL_SIZE, poolSize } from "./workerPool";
 
 export const stateRegistry = Registry.make();
 
 export const imagesAtom = Atom.make<Record<ImageId, Image>>({});
 export const imageCountAtom = Atom.map(imagesAtom, (imgs) => Record.size(imgs));
+
+export const cpuCountAtom = Atom.map(imageCountAtom, (count) =>
+	poolSize(MAX_POOL_SIZE)(count),
+);
 
 export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
 	Record.filter(imgs, (img) => img.processed),
