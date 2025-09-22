@@ -1,17 +1,17 @@
+import { FileSystem, Path } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { describe, expect, it } from "@effect/vitest";
+import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
+import { Effect, flow, Layer, Record } from "effect";
+import { imageDimensionsFromData } from "image-dimensions";
 import {
 	ImageMagickError,
 	ImageMagickService,
 	ImageMagickWasmBytes,
 } from "@/lib/imagemagick";
-import { describe, expect, it } from "@effect/vitest";
-import { Effect, flow, Layer, Record } from "effect";
-import { configurationFromState, dimension, loadTestImages } from "./utils";
-import { imageDimensionsFromData } from "image-dimensions";
-import { arrayBufferToUint8Array } from "@/lib/utils";
 import type { Configuration } from "@/lib/types";
-import { FileSystem, Path } from "@effect/platform";
-import { NodeFileSystem } from "@effect/platform-node";
-import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
+import { arrayBufferToUint8Array } from "@/lib/utils";
+import { configurationFromState, dimension, loadTestImages } from "./utils";
 
 const NodeReadImageMagickWasmBytes = Layer.succeed(
 	ImageMagickWasmBytes,

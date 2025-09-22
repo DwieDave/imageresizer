@@ -1,6 +1,5 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Record } from "effect";
-import type { ProcessedImage } from "@/lib/types";
+import { Record } from "effect";
 import { poolSize, preProcessImages } from "@/lib/workerPool";
 import { loadTestImages } from "./utils";
 
@@ -144,20 +143,20 @@ describe("preProcessImages", () => {
 	});
 });
 
-describe("postProcessImages", () => {
-	const images = loadTestImages();
-	const postProcessed: ProcessedImage[] = Record.toEntries(images).map(
-		([id, image]) => ({
-			id,
-			name: image.file.name,
-			originalSize: image.file.size,
-			processedSize: image.file.size * 0.5,
-			mimeType: image.file.type,
-			data: new ArrayBuffer(),
-			processed: true,
-		}),
-	);
-	it.effect("should postProcessImage successfully", () =>
-		Effect.gen(function* () {}),
-	);
-});
+// describe("postProcessImages", () => {
+// 	const images = loadTestImages();
+// 	const postProcessed: ProcessedImage[] = Record.toEntries(images).map(
+// 		([id, image]) => ({
+// 			id,
+// 			name: image.file.name,
+// 			originalSize: image.file.size,
+// 			processedSize: image.file.size * 0.5,
+// 			mimeType: image.file.type,
+// 			data: new ArrayBuffer(),
+// 			processed: true,
+// 		}),
+// 	);
+// 	it.effect("should postProcessImage successfully", () =>
+// 		Effect.gen(function* () {}),
+// 	);
+// });

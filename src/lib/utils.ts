@@ -1,11 +1,11 @@
 import { type ClassValue, clsx } from "clsx";
 import { DateTime, Effect } from "effect";
+import { isError } from "effect/Predicate";
 import { twMerge } from "tailwind-merge";
 import { downloadBlob } from "@/lib/download.ts";
 import { imagesAtom, stateRegistry } from "@/lib/state.ts";
 import type { ProcessedImage } from "@/lib/types.ts";
 import { zipFiles } from "@/lib/zip.ts";
-import { isError } from "effect/Predicate";
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

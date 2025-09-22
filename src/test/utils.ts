@@ -1,15 +1,14 @@
+import { File as NodeFile } from "node:buffer";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { pipe } from "effect";
+import { configurationAtom, stateRegistry } from "@/lib/state";
 import {
+	type Configuration,
 	type ImageId,
 	type InputImage,
 	makeImageId,
-	Configuration,
 } from "@/lib/types";
-import { configurationAtom, stateRegistry } from "@/lib/state";
-
-import { File as NodeFile } from "node:buffer";
 
 export const fixture = (name: string) =>
 	path.join(import.meta.dirname, "/fixtures/", name);
