@@ -39,8 +39,8 @@ const Pool = Context.GenericTag<
 
 const MAX_POOL_SIZE = navigator.hardwareConcurrency;
 
-export const poolSize = (imagesLength: number) =>
-	pipe(imagesLength / 2, Math.round, (_) => Math.min(_, MAX_POOL_SIZE));
+export const poolSize = (nrCores: number) => (imagesLength: number) =>
+	pipe(imagesLength / 2, Math.round, (_) => Math.min(_, nrCores));
 
 const makePoolLive = (size: number) =>
 	EffectWorker.makePoolLayer(Pool, { size }).pipe(
@@ -49,7 +49,10 @@ const makePoolLive = (size: number) =>
 		),
 	);
 
-const makePool = flow(poolSize, makePoolLive);
+const makePool = flow(
+	(cores: number, imgs: number) => poolSize(cores)(imgs),
+	makePoolLive,
+);
 
 const executePool = (input: WorkerInput[]) =>
 	Pool.pipe(
@@ -67,7 +70,7 @@ const executePool = (input: WorkerInput[]) =>
 				{ concurrency: "inherit" },
 			),
 		),
-		Effect.provide(makePool(input.length)),
+		Effect.provide(makePool(input.length, MAX_POOL_SIZE)),
 	);
 
 export const preProcessImages = (

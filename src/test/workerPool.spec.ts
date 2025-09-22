@@ -1,36 +1,133 @@
-import { type ProcessedImage } from "@/lib/types";
-import { poolSize, preProcessImages } from "@/lib/workerPool";
 import { describe, expect, it } from "@effect/vitest";
-import { loadTestImages } from "./utils";
 import { Effect, Record } from "effect";
+import type { ProcessedImage } from "@/lib/types";
+import { poolSize, preProcessImages } from "@/lib/workerPool";
+import { loadTestImages } from "./utils";
+
+const expectEntries = (
+	results: Record<number | string, number>,
+	compute: (input: number) => number,
+	annotateInput?: (input: string) => string,
+) => {
+	Record.toEntries(results).forEach(([input, output]) => {
+		const result = compute(Number(input));
+		expect(
+			result,
+			annotateInput ? annotateInput(input) : undefined,
+		).toStrictEqual(output);
+	});
+};
 
 describe("poolSize", () => {
-	const cores = navigator.hardwareConcurrency;
+	// This represents a {
+	//		nrOfCores: {
+	//			nrOfImages: outputNrOfExpectedParallelWorker
+	//		}
+	// } Record
 
-	it("calculate correctly for a single image", () => {
-		expect(poolSize(1)).toStrictEqual(1);
-	});
+	const testCases = {
+		// Single Core Tests
+		1: {
+			1: 1,
+			2: 1,
+			3: 1,
+			4: 1,
+			5: 1,
+			6: 1,
+			10: 1,
+			15: 1,
+			20: 1,
+			50: 1,
+			100: 1,
+			1000: 1,
+		},
+		// Dual Core Tests
+		2: {
+			1: 1,
+			2: 1,
+			3: 2,
+			4: 2,
+			5: 2,
+			6: 2,
+			10: 2,
+			15: 2,
+			20: 2,
+			50: 2,
+			100: 2,
+			1000: 2,
+		},
+		// Quad Core Tests
+		4: {
+			1: 1,
+			2: 1,
+			3: 2,
+			4: 2,
+			5: 3,
+			6: 3,
+			10: 4,
+			15: 4,
+			20: 4,
+			50: 4,
+			100: 4,
+			1000: 4,
+		},
+		// Hexa Core Tests
+		6: {
+			1: 1,
+			2: 1,
+			3: 2,
+			4: 2,
+			5: 3,
+			6: 3,
+			10: 5,
+			15: 6,
+			20: 6,
+			50: 6,
+			100: 6,
+			1000: 6,
+		},
+		// Hexa Core Tests
+		10: {
+			1: 1,
+			2: 1,
+			3: 2,
+			4: 2,
+			5: 3,
+			6: 3,
+			10: 5,
+			15: 8,
+			20: 10,
+			50: 10,
+			100: 10,
+			1000: 10,
+		},
+		// 128 Core Tests
+		128: {
+			1: 1,
+			2: 1,
+			3: 2,
+			4: 2,
+			5: 3,
+			6: 3,
+			10: 5,
+			15: 8,
+			20: 10,
+			50: 25,
+			100: 50,
+			1000: 128,
+		},
+	};
 
-	it("calculate correctly for 2 images", () => {
-		expect(poolSize(2)).toStrictEqual(1);
-	});
-
-	it("calculate correctly for small amount of images", () => {
-		expect(poolSize(5)).toStrictEqual(3);
-	});
-
-	it("calculate correctly for medium amount of images", () => {
-		expect(poolSize(10)).toStrictEqual(5);
-	});
-
-	it("calculate correctly for large amount of images", () => {
-		expect(poolSize(20)).toStrictEqual(10);
-	});
-
-	it("poolSize is capped at hardwareConcurrency maximum", () => {
-		expect(poolSize(cores + 1)).toBeLessThan(cores);
-		expect(poolSize(cores * 2)).toStrictEqual(cores);
-	});
+	for (const [cores, cases] of Record.toEntries(testCases)) {
+		const calcCores = poolSize(Number(cores));
+		it(`calculates correctly for ${cores}-core machines`, () => {
+			expectEntries(
+				cases,
+				calcCores,
+				(input) => `Testcase ${input} images as input`,
+			);
+		});
+	}
 });
 
 describe("preProcessImages", () => {
