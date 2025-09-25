@@ -59,8 +59,9 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 		}),
 	);
 
+const streamFromInput = flow(processImage, Stream.fromEffect);
+
 const WorkerLive = Effect.gen(function* () {
-	const streamFromInput = flow(processImage, Stream.fromEffect);
 	yield* WorkerRunner.make(streamFromInput);
 	yield* Effect.log("ImageMagick worker started");
 	yield* Effect.addFinalizer(() => Effect.log("ImageMagick worker closed"));

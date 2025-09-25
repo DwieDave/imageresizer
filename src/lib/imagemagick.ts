@@ -7,7 +7,11 @@ import {
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
 import { Context, Data, Effect, Layer } from "effect";
 import { type Configuration, formatMap } from "@/lib/types";
-import { toCauseString, uint8arrayToArrayBuffer } from "./utils";
+import {
+	calculateDimensions,
+	toCauseString,
+	uint8arrayToArrayBuffer,
+} from "./utils";
 
 export class ImageMagickError extends Data.TaggedError("ImageMagickError")<{
 	stage: "FETCH" | "INITIALIZE";
@@ -72,32 +76,10 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 
 			yield* initialize;
 
-			const calculateDimensions = ([{ width, height }, { dimensions }]: [
-				{ width: number; height: number },
-				Configuration,
-			]) => {
-				const aspectRatio = width / height;
-				return dimensions._tag === "widthHeight"
-					? {
-							width: dimensions.width,
-							height: dimensions.height,
-						}
-					: {
-							width:
-								width > height
-									? dimensions.longestSide
-									: dimensions.longestSide / aspectRatio,
-							height:
-								height > width
-									? dimensions.longestSide
-									: dimensions.longestSide / aspectRatio,
-						};
-			};
-
 			const transform = (config: Configuration) => (image: IMagickImage) => {
 				const [width, height] = [image.width, image.height];
 
-				if (config.operations.resize) {
+				if (config.resize.enabled) {
 					const newDimensions = calculateDimensions([
 						{ width, height },
 						config,
@@ -106,8 +88,8 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 					image.resize(newDimensions.width, newDimensions.height);
 				}
 
-				if (config.operations.compress)
-					image.quality = config.compression * 100;
+				if (config.compression.enabled)
+					image.quality = config.compression.value * 100;
 			};
 
 			const outputFormat = (config: Configuration) =>

@@ -106,14 +106,13 @@ export const postProcessImages = (
 		Effect.map(() => stateRegistry.set(showSuccessAtom, false)),
 		Effect.catchTags({
 			WorkerError: (error) => {
-				Console.error(error);
 				stateRegistry.set(errorAtom, {
 					show: true,
 					message: error.message,
 					cause: isError(error.cause) ? error.cause.message : undefined,
 				});
 				stateRegistry.set(imagesAtom, {});
-				return Effect.void;
+				return Console.error(error);
 			},
 		}),
 	);
