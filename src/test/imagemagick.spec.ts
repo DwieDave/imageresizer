@@ -2,16 +2,16 @@ import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
-import { Effect, flow, Layer, Record } from "effect";
+import { Effect, flow, Layer, Option, Record } from "effect";
 import { imageDimensionsFromData } from "image-dimensions";
 import {
 	ImageMagickError,
 	ImageMagickService,
 	ImageMagickWasmBytes,
 } from "@/lib/imagemagick";
-import type { Configuration } from "@/lib/types";
+import { Configuration } from "@/lib/types";
 import { arrayBufferToUint8Array } from "@/lib/utils";
-import { configurationFromState, dimension, loadTestImages } from "./utils";
+import { dimension, loadTestImages } from "./utils";
 
 const NodeReadImageMagickWasmBytes = Layer.succeed(
 	ImageMagickWasmBytes,
@@ -41,21 +41,28 @@ const TestLayer = ImageMagickService.DefaultWithoutDependencies.pipe(
 
 describe("imagemagick", () => {
 	const images = loadTestImages();
-	const configuration = flow(
-		configurationFromState,
-		structuredClone<Configuration>,
-	);
 
 	const dimensions = flow(arrayBufferToUint8Array, imageDimensionsFromData);
+	const defaultConfig = Configuration.default;
 
 	it.effect("should process TestImages successfull", () =>
 		Effect.gen(function* () {
 			const config: Configuration = {
-				...configuration(),
-				dimensions: { _tag: "widthHeight", width: 1920, height: 1080 },
-			};
+				...defaultConfig,
+				resize: {
+					enabled: true,
+					mode: "widthHeight",
+					settings: {
+						...defaultConfig.resize.settings,
+						widthHeight: [1920, 1080],
+					},
+				},
+			} as const;
 
 			const dim = dimension(config);
+			const [width, height] = [dim("width"), dim("height")];
+
+			if (Option.isNone(width) || Option.isNone(height)) return;
 
 			const imagemagick = yield* ImageMagickService;
 
@@ -72,8 +79,8 @@ describe("imagemagick", () => {
 				);
 				const processedDimensions = dimensions(processedArrayBuffer);
 
-				expect(processedDimensions?.width).toBeLessThanOrEqual(dim("width"));
-				expect(processedDimensions?.height).toStrictEqual(dim("height"));
+				expect(processedDimensions?.width).toBeLessThanOrEqual(width.value);
+				expect(processedDimensions?.height).toStrictEqual(height.value);
 			}
 		}).pipe(Effect.provide(TestLayer)),
 	);

@@ -43,8 +43,11 @@ export const loadTestImages = () => {
 
 export const dimension =
 	(config: Configuration) => (side: "width" | "height") =>
-		Match.value(config.resize.settings).pipe(
-			Match.when({ _tag: "longestSide" }, (dim) => dim.longestSide),
-			Match.when({ _tag: "widthHeight" }, (dim) => dim[side]),
+		Match.value(config.resize).pipe(
+			Match.when({ mode: "longestSide" }, (dim) => dim.settings.longestSide),
+			Match.when(
+				{ mode: "widthHeight" },
+				(dim) => dim.settings.widthHeight[side === "width" ? 0 : 1],
+			),
 			Match.option,
 		);
