@@ -1,5 +1,5 @@
 import { useAtomSet } from "@effect-atom/atom-react";
-import { Array as A, pipe } from "effect";
+import { Array, pipe } from "effect";
 import {
 	Dropzone,
 	DropzoneContent,
@@ -14,14 +14,18 @@ export const ImageDropzone = () => {
 
 	const handleDrop = (currentFiles: File[]) =>
 		pipe(
-			A.reduce<File, Record<ImageId, Image>>(currentFiles, {}, (acc, file) => {
-				const imageId = makeImageId(self.crypto.randomUUID());
-				acc[imageId] = {
-					file,
-					processed: false,
-				};
-				return acc;
-			}),
+			Array.reduce<File, Record<ImageId, Image>>(
+				currentFiles,
+				{},
+				(acc, file) => {
+					const imageId = makeImageId(self.crypto.randomUUID());
+					acc[imageId] = {
+						file,
+						processed: false,
+					};
+					return acc;
+				},
+			),
 			(_) => {
 				setImages(_);
 				processImages(_);
@@ -31,7 +35,7 @@ export const ImageDropzone = () => {
 	return (
 		<Dropzone
 			accept={{ "image/*": [] }}
-			className="flex-grow"
+			className="flex-grow max-w-full"
 			maxFiles={Number.POSITIVE_INFINITY}
 			onDrop={handleDrop}
 			onError={console.error}

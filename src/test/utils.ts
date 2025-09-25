@@ -1,8 +1,7 @@
 import { File as NodeFile } from "node:buffer";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { pipe } from "effect";
-import { configurationAtom, stateRegistry } from "@/lib/state";
+import { Match, pipe } from "effect";
 import {
 	type Configuration,
 	type ImageId,
@@ -42,11 +41,10 @@ export const loadTestImages = () => {
 	return images;
 };
 
-export const configurationFromState = () =>
-	stateRegistry.get(configurationAtom);
-
 export const dimension =
 	(config: Configuration) => (side: "width" | "height") =>
-		config.dimensions._tag === "longestSide"
-			? config.dimensions.longestSide
-			: config.dimensions[side];
+		Match.value(config.resize.settings).pipe(
+			Match.when({ _tag: "longestSide" }, (dim) => dim.longestSide),
+			Match.when({ _tag: "widthHeight" }, (dim) => dim[side]),
+			Match.option,
+		);

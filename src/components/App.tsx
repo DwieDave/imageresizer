@@ -3,6 +3,7 @@ import { CircleCheckBig, CircleX, LoaderCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { Header } from "@/components/Header";
 import { ImageDropzone } from "@/components/ImageDropzone";
+import { Settings } from "@/components/settings";
 import {
 	errorAtom,
 	isProcessingAtom,
@@ -17,6 +18,7 @@ export const Container = ({ children }: { children: ReactNode }) => (
 		{children}
 	</div>
 );
+
 const SuccessMessage = ({ processedCount }: { processedCount: number }) => (
 	<Container>
 		<CircleCheckBig className="size-10" color="var(--color-green-600)" />
@@ -59,17 +61,21 @@ export const App = () => {
 	const error = useAtomValue(errorAtom);
 
 	return (
-		<div className="p-8 md:p-12 xl:p-17 flex flex-col gap-3 h-full">
+		<div className="p-8 md:p-12 xl:p-17 flex flex-col gap-4 h-full">
 			<Header />
-			{error.show ? (
-				<ErrorMessage />
-			) : showSuccess ? (
-				<SuccessMessage processedCount={processedCount} />
-			) : isProcessing ? (
-				<Spinner />
-			) : (
-				<ImageDropzone />
-			)}
+			<div className="flex flex-col gap-4 h-full">
+				<Settings className="w-full md:w-2/3 lg:w-3/5" />
+				{error.show ? (
+					<ErrorMessage />
+				) : showSuccess ? (
+					<SuccessMessage processedCount={processedCount} />
+				) : isProcessing ? (
+					<Spinner />
+				) : (
+					<ImageDropzone />
+				)}
+			</div>
+
 			{isProcessing && <ProgressBar />}
 		</div>
 	);

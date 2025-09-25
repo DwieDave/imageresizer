@@ -47,23 +47,7 @@ export const configurationAtom = Atom.kvs({
 	runtime: Atom.runtime(BrowserKeyValueStore.layerLocalStorage),
 	key: "configuration",
 	schema: Configuration,
-	defaultValue: () =>
-		Configuration.make({
-			operations: {
-				resize: true,
-				compress: true,
-			},
-			compression: 0.5,
-			dimensions: {
-				_tag: "longestSide",
-				longestSide: 1080,
-			},
-			export: {
-				format: "jpeg",
-				exif: true,
-				gps: true,
-			},
-		}),
+	defaultValue: () => Configuration.default,
 });
 
 export const showSuccessAtom = Atom.make(false);

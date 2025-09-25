@@ -1,10 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
-import { DateTime, Effect } from "effect";
+import { DateTime, Effect, Match } from "effect";
 import { isError } from "effect/Predicate";
 import { twMerge } from "tailwind-merge";
 import { downloadBlob } from "@/lib/download.ts";
 import { imagesAtom, stateRegistry } from "@/lib/state.ts";
-import type { ProcessedImage } from "@/lib/types.ts";
+import type { Configuration, ProcessedImage } from "@/lib/types.ts";
 import { zipFiles } from "@/lib/zip.ts";
 
 export function cn(...inputs: ClassValue[]) {
@@ -54,3 +54,37 @@ export const updateImage = (processedImage: ProcessedImage) =>
 
 export const toCauseString = (err: unknown): string =>
 	isError(err) ? err.message : "Unknown Cause";
+
+export const calculateDimensions = ([{ width, height }, { resize }]: [
+	{ width: number; height: number },
+	Configuration,
+]) => {
+	const aspectRatio = width / height;
+
+	return Match.value(resize).pipe(
+		Match.when({ mode: "widthHeight" }, (dim) => ({
+			width: dim.settings.widthHeight[0],
+			height: dim.settings.widthHeight[1],
+		})),
+		Match.when({ mode: "longestSide" }, (dim) => ({
+			width:
+				width > height
+					? dim.settings.longestSide
+					: dim.settings.longestSide / aspectRatio,
+			height:
+				height > width
+					? dim.settings.longestSide
+					: dim.settings.longestSide / aspectRatio,
+		})),
+		Match.when({ mode: "megapixel" }, (dim) => {
+			const currentMegapixel = (width * height) / 1_000_000;
+			const scaleFactor = Math.sqrt(dim.settings.megapixel / currentMegapixel);
+			const toScale = (_: number) => Math.floor(_ * scaleFactor);
+			return {
+				width: toScale(width),
+				height: toScale(height),
+			};
+		}),
+		Match.exhaustive,
+	);
+};
