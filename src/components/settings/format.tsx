@@ -1,4 +1,3 @@
-import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -8,6 +7,9 @@ import {
 } from "@/components/ui/select";
 import { useConfig } from "@/hooks/useConfig";
 import { type Format, FormatSchema } from "@/lib/types";
+import { cn } from "@/lib/utils.ts";
+import { Checkbox } from "../ui/checkbox.tsx";
+import style from "./style.ts";
 
 export const FormatSettings = () => {
 	const { config, setConfig } = useConfig();
@@ -17,21 +19,47 @@ export const FormatSettings = () => {
 			export: { ...old.export, format: val as Format },
 		}));
 
+	const toggle = (val: boolean) =>
+		setConfig((old) => ({
+			...old,
+			export: {
+				...old.export,
+				enabled: val,
+			},
+		}));
+
 	return (
-		<div className="grid grid-cols-2">
-			<Label htmlFor="format">Format</Label>
-			<Select value={config.export.format} onValueChange={change}>
-				<SelectTrigger className="w-full">
-					<SelectValue placeholder="Export Format" />
-				</SelectTrigger>
-				<SelectContent>
-					{FormatSchema.literals.map((format) => (
-						<SelectItem key={`format-${format}`} value={format}>
-							{format.toUpperCase()}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+		<div className={style.sectionWrapper}>
+			<div className={style.checkboxRow}>
+				<Checkbox
+					className={cn(style.sectionCheckbox, "cursor-pointer")}
+					checked={config.export.enabled}
+					onCheckedChange={toggle}
+				/>
+				<p
+					onClick={() => toggle(!config.export.enabled)}
+					onKeyUp={() => {}}
+					className="text-sm leading-none font-medium cursor-pointer"
+				>
+					Format
+				</p>
+			</div>
+			{config.export.enabled && (
+				<div className={cn(style.sectionContainer, "p-2")}>
+					<Select value={config.export.format} onValueChange={change}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Export Format" />
+						</SelectTrigger>
+						<SelectContent>
+							{FormatSchema.literals.map((format) => (
+								<SelectItem key={`format-${format}`} value={format}>
+									{format.toUpperCase()}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+			)}
 		</div>
 	);
 };

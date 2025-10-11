@@ -27,7 +27,7 @@ export const WidthHeightResizeSetting = () => {
 			}));
 
 	return (
-		<div className="flex flex-row gap-3 items-center max-w-[350px]">
+		<div className="flex flex-row gap-3 items-center max-w-full">
 			<Input
 				placeholder="Width"
 				type="number"

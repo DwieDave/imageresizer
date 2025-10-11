@@ -12,23 +12,27 @@ export const CompressionSettings = () => {
 
 	return (
 		<div className={style.sectionWrapper}>
-			<Checkbox
-				className={cn(style.sectionCheckbox, "cursor-pointer")}
-				checked={config.compression.enabled}
-				onCheckedChange={toggle}
-			/>
-			<div className="grid gap-1.5 font-normal w-full">
+			<div className={style.checkboxRow}>
+				<Checkbox
+					className={cn(style.sectionCheckbox, "cursor-pointer")}
+					checked={config.compression.enabled}
+					onCheckedChange={toggle}
+				/>
+
 				<p
 					onClick={() => toggle(!config.compression.enabled)}
 					onKeyUp={() => {}}
-					className="text-sm leading-none font-medium cursor-pointer"
+					className="h-fit text-sm leading-none font-medium cursor-pointer"
 				>
 					Compression
 				</p>
-				{config.compression.enabled && (
-					<div className="flex flex-row content-between gap-4 flex-grow pt-4">
+			</div>
+
+			{config.compression.enabled && (
+				<div className={cn(style.sectionContainer, "p-2")}>
+					<div>
 						<Label htmlFor="compression">Level</Label>
-						<div className="flex flex-row gap-3 flex-grow">
+						<div className="flex flex-row gap-3 flex-grow items-center">
 							<Slider
 								className="flex-grow"
 								value={[compressionPercent]}
@@ -47,8 +51,8 @@ export const CompressionSettings = () => {
 							<span className="tabular-nums">{compressionPercent}%</span>
 						</div>
 					</div>
-				)}
-			</div>
+				</div>
+			)}
 		</div>
 	);
 };

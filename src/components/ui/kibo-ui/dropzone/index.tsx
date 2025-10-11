@@ -171,7 +171,7 @@ export const DropzoneEmptyState = ({
 	let caption = "";
 
 	if (accept) {
-		caption += "Accepts ";
+		caption += "Accepts multiple ";
 		caption += new Intl.ListFormat("en").format(Object.keys(accept));
 	}
 

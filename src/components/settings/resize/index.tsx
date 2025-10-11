@@ -19,14 +19,35 @@ export const ResizeSettings = () => {
 			resize: { ...old.resize, mode: tag },
 		}));
 
+	const tabs: { value: ResizeTag; name: string; short: string }[] = [
+		{
+			value: "widthHeight",
+			name: "Width x Height",
+			short: "WxH",
+		},
+		{
+			value: "longestSide",
+			name: "Longest side",
+			short: "Longest",
+		},
+		{
+			value: "megapixel",
+			name: "Megapixel",
+			short: "MP",
+		},
+	];
+
+	const tabMinHeight = `p-[3px] min-h-[2.4rem] 
+    data-[state=inactive]:absolute data-[state=inactive]:opacity-0 data-[state=inactive]:pointer-events-none`;
+
 	return (
 		<div className={style.sectionWrapper}>
-			<Checkbox
-				className={style.sectionCheckbox}
-				checked={config.resize.enabled}
-				onCheckedChange={toggle}
-			/>
-			<div className="w-full grid gap-1.5 font-normal">
+			<div className={style.checkboxRow}>
+				<Checkbox
+					className={style.sectionCheckbox}
+					checked={config.resize.enabled}
+					onCheckedChange={toggle}
+				/>
 				<p
 					onClick={() => toggle(!config.resize.enabled)}
 					onKeyUp={() => {}}
@@ -34,43 +55,38 @@ export const ResizeSettings = () => {
 				>
 					Resize
 				</p>
-				{config.resize.enabled && (
+			</div>
+			{config.resize.enabled && (
+				<div className={style.sectionContainer}>
 					<Tabs
 						defaultValue={config.resize.mode}
-						className="mt-3 w-full min-h-[116px] bg-muted border p-4 rounded-lg"
+						className="w-full max-w-full border border-indigo-900 p-3 rounded-lg"
 					>
-						<TabsList>
-							<TabsTrigger
-								onClick={() => changeResizeMode("widthHeight")}
-								value="widthHeight"
-							>
-								Width x Height
-							</TabsTrigger>
-							<TabsTrigger
-								onClick={() => changeResizeMode("longestSide")}
-								value="longestSide"
-							>
-								Longest side
-							</TabsTrigger>
-							<TabsTrigger
-								onClick={() => changeResizeMode("megapixel")}
-								value="megapixel"
-							>
-								MegaPixel
-							</TabsTrigger>
+						<TabsList className="flex-wrap">
+							{tabs.map((tab) => (
+								<TabsTrigger
+									key={tab.value}
+									onClick={() => changeResizeMode(tab.value)}
+									value={tab.value}
+									className="text-xs"
+								>
+									<span className="hidden xl:inline">{tab.name}</span>
+									<span className="xl:hidden">{tab.short}</span>
+								</TabsTrigger>
+							))}
 						</TabsList>
-						<TabsContent value="widthHeight" className="p-[3px]">
+						<TabsContent value="widthHeight" className={tabMinHeight}>
 							<WidthHeightResizeSetting />
 						</TabsContent>
-						<TabsContent value="longestSide" className="p-[3px]">
+						<TabsContent value="longestSide" className={tabMinHeight}>
 							<LongestSideResizeSetting />
 						</TabsContent>
-						<TabsContent value="megapixel" className="p-[3px]">
+						<TabsContent value="megapixel" className={tabMinHeight}>
 							<MegaPixelResizeSetting />
 						</TabsContent>
 					</Tabs>
-				)}
-			</div>
+				</div>
+			)}
 		</div>
 	);
 };

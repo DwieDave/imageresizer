@@ -117,10 +117,13 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 				Effect.tryPromise({
 					try: () =>
 						new Promise<ArrayBuffer>((resolve) => {
-							image.write(outputFormat(config), (data) => {
-								const result = uint8arrayToArrayBuffer(data);
-								resolve(result);
-							});
+							image.write(
+								config.export.enabled ? outputFormat(config) : image.format,
+								(data) => {
+									const result = uint8arrayToArrayBuffer(data);
+									resolve(result);
+								},
+							);
 						}),
 					catch: (error) =>
 						new ImageProcessingError({

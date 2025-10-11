@@ -47,6 +47,7 @@ export class Configuration extends Schema.Class<Configuration>("Configuration")(
 			settings: ModeSettings,
 		}),
 		export: Schema.Struct({
+			enabled: Schema.Boolean,
 			format: FormatSchema,
 			exif: Schema.Boolean,
 			gps: Schema.Boolean,
@@ -68,6 +69,7 @@ export class Configuration extends Schema.Class<Configuration>("Configuration")(
 			},
 		},
 		export: {
+			enabled: true,
 			format: "jpeg",
 			exif: false,
 			gps: false,

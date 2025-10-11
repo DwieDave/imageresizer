@@ -64,7 +64,7 @@ export const App = () => {
 		<div className="p-8 md:p-12 xl:p-17 flex flex-col gap-4 h-full">
 			<Header />
 			<div className="flex flex-col gap-4 h-full">
-				<Settings className="w-full md:w-2/3 lg:w-3/5" />
+				<Settings className="w-full" />
 				{error.show ? (
 					<ErrorMessage />
 				) : showSuccess ? (
