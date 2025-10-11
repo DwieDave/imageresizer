@@ -1,12 +1,13 @@
 import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { Atom, Registry } from "@effect-atom/atom-react";
-import { Array, pipe, Record } from "effect";
+import { Array, Effect, pipe, Record } from "effect";
 import { Configuration, type Image, type ImageId } from "@/lib/types";
-import { MAX_POOL_SIZE, poolSize } from "./workerPool";
+import { MAX_POOL_SIZE, poolSize, processImages } from "./workerPool";
 
 export const stateRegistry = Registry.make();
 
-export const imagesAtom = Atom.make<Record<ImageId, Image>>({});
+type ImageRecord = Record<ImageId, Image>;
+export const imagesAtom = Atom.make<ImageRecord>({});
 export const imageCountAtom = Atom.map(imagesAtom, (imgs) => Record.size(imgs));
 
 export const cpuCountAtom = Atom.map(imageCountAtom, (count) =>
@@ -55,3 +56,14 @@ export const showSuccessAtom = Atom.make(false);
 export const errorAtom = Atom.make<
 	{ show: false } | { show: true; message: string; cause?: string }
 >({ show: false });
+
+export const processImagesAtom = Atom.fn(
+	Effect.fnUntraced(function* (images: ImageRecord) {
+		processImages(images).pipe(
+			Effect.tap(() => stateRegistry.set(showSuccessAtom, true)),
+			Effect.tap(() => Effect.sleep("3 seconds")),
+			Effect.tap(() => stateRegistry.set(showSuccessAtom, false)),
+			Effect.runSync,
+		);
+	}),
+);
