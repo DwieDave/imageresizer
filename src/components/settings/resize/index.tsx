@@ -62,7 +62,7 @@ export const ResizeSettings = () => {
 						defaultValue={config.resize.mode}
 						className="w-full max-w-full border border-indigo-900 p-3 rounded-lg"
 					>
-						<TabsList className="flex-wrap">
+						<TabsList className="flex-wrap border-b-1 w-full pb-2.5">
 							{tabs.map((tab) => (
 								<TabsTrigger
 									key={tab.value}
