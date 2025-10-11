@@ -101,9 +101,9 @@ export const postProcessImages = (
 ) =>
 	processedImagesFx.pipe(
 		Effect.flatMap(downloadImages),
-		Effect.map(() => stateRegistry.set(showSuccessAtom, true)),
-		Effect.flatMap(() => Effect.sleep("3 seconds")),
-		Effect.map(() => stateRegistry.set(showSuccessAtom, false)),
+		// Effect.map(() => stateRegistry.set(showSuccessAtom, true)),
+		// Effect.flatMap(() => Effect.sleep("3 seconds")),
+		// Effect.map(() => stateRegistry.set(showSuccessAtom, false)),
 		Effect.catchTags({
 			WorkerError: (error) => {
 				stateRegistry.set(errorAtom, {
@@ -121,5 +121,4 @@ export const processImages = flow(
 	preProcessImages,
 	executePool,
 	postProcessImages,
-	BrowserRuntime.runMain,
 );

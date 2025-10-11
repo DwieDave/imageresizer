@@ -1,16 +1,17 @@
-import { useAtomSet } from "@effect-atom/atom-react";
+import { useAtom, useAtomSet } from "@effect-atom/atom-react";
 import { Array, pipe } from "effect";
 import {
 	Dropzone,
 	DropzoneContent,
 	DropzoneEmptyState,
 } from "@/components/ui/kibo-ui/dropzone";
-import { imagesAtom } from "@/lib/state";
+import { imagesAtom, processImagesAtom } from "@/lib/state";
 import { type Image, type ImageId, makeImageId } from "@/lib/types";
 import { processImages } from "@/lib/workerPool";
 
 export const ImageDropzone = () => {
 	const setImages = useAtomSet(imagesAtom);
+	const [result, process] = useAtom(processImagesAtom);
 
 	const handleDrop = (currentFiles: File[]) =>
 		pipe(
@@ -28,7 +29,7 @@ export const ImageDropzone = () => {
 			),
 			(_) => {
 				setImages(_);
-				processImages(_);
+				process(_);
 			},
 		);
 
