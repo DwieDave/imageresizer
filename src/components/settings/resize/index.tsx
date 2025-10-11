@@ -37,7 +37,7 @@ export const ResizeSettings = () => {
 		},
 	];
 
-	const tabMinHeight = `p-[3px] min-h-[2.4rem] 
+	const tabMinHeight = `min-h-[2.2rem] 
     data-[state=inactive]:absolute data-[state=inactive]:opacity-0 data-[state=inactive]:pointer-events-none`;
 
 	return (
@@ -62,7 +62,7 @@ export const ResizeSettings = () => {
 						defaultValue={config.resize.mode}
 						className="w-full max-w-full border border-indigo-900 p-3 rounded-lg"
 					>
-						<TabsList className="flex-wrap">
+						<TabsList className="flex-wrap border-b-1 w-full pb-2.5">
 							{tabs.map((tab) => (
 								<TabsTrigger
 									key={tab.value}

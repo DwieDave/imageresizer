@@ -29,18 +29,13 @@ export const FormatSettings = () => {
 		}));
 
 	return (
-		<div className={style.sectionWrapper}>
-			<div className={style.checkboxRow}>
-				<Checkbox
-					className={cn(style.sectionCheckbox, "cursor-pointer")}
-					checked={config.export.enabled}
-					onCheckedChange={toggle}
-				/>
-				<p
-					onClick={() => toggle(!config.export.enabled)}
-					onKeyUp={() => {}}
-					className="text-sm leading-none font-medium cursor-pointer"
-				>
+		<SettingsCard
+			title="Export"
+			value={config.export.enabled}
+			toggle={toggleOperation("export")}
+		>
+			<div className="p-2">
+				<Label htmlFor="format" className="mb-2">
 					Format
 				</p>
 			</div>
