@@ -2,6 +2,7 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: onClick is enough here */
 import type { JSX } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 type ToggleFn = (newVal: boolean) => void;
 type Props = {
@@ -18,9 +19,13 @@ export const SettingsCard: React.FC<Props> = ({
 	children,
 }) => (
 	<div
-		className={`flex flex-col hover:bg-accent/50 border items-start gap-3 rounded-lg p-3 
+		className={cn(
+			!value ? "cursor-pointer" : "",
+			`flex flex-col hover:bg-accent/50 border items-start gap-3 rounded-lg p-3 
 		  has-[[aria-checked=true]]:border-indigo-600 has-[[aria-checked=true]]:bg-indigo-50
-		  dark:has-[[aria-checked=true]]:border-indigo-900 dark:has-[[aria-checked=true]]:bg-indigo-950/50`}
+		  dark:has-[[aria-checked=true]]:border-indigo-900 dark:has-[[aria-checked=true]]:bg-indigo-950/50`,
+		)}
+		onClick={() => (!value ? toggle(!value) : null)}
 	>
 		<div
 			className="flex w-full gap-3 click-padding-3 items-center cursor-pointer"
