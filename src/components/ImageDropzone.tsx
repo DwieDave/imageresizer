@@ -1,16 +1,20 @@
 import { useAtom, useAtomSet } from "@effect-atom/atom-react";
-import { Array, pipe } from "effect";
+import { Array, pipe, Record } from "effect";
 import {
 	Dropzone,
 	DropzoneContent,
 	DropzoneEmptyState,
 } from "@/components/ui/kibo-ui/dropzone";
+import { useConfig } from "@/hooks/useConfig";
 import { imagesAtom, processImagesAtom } from "@/lib/state";
 import { type Image, type ImageId, makeImageId } from "@/lib/types";
 
 export const ImageDropzone = () => {
 	const setImages = useAtomSet(imagesAtom);
 	const [_, process] = useAtom(processImagesAtom);
+	const { config } = useConfig();
+
+	const disabled = Record.every(config, (conf) => !conf.enabled);
 
 	const handleDrop = (currentFiles: File[]) =>
 		pipe(
@@ -39,6 +43,7 @@ export const ImageDropzone = () => {
 			maxFiles={Number.POSITIVE_INFINITY}
 			onDrop={handleDrop}
 			onError={console.error}
+			disabled={disabled}
 		>
 			<DropzoneEmptyState />
 			<DropzoneContent />
