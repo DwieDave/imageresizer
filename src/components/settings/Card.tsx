@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: There is no static element with interaction */
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: onClick is enough here */
 import type { JSX } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -20,7 +22,10 @@ export const SettingsCard: React.FC<Props> = ({
 		  has-[[aria-checked=true]]:border-indigo-600 has-[[aria-checked=true]]:bg-indigo-50
 		  dark:has-[[aria-checked=true]]:border-indigo-900 dark:has-[[aria-checked=true]]:bg-indigo-950/50`}
 	>
-		<div className="flex gap-3 items-center">
+		<div
+			className="flex w-full gap-3 click-padding-3 items-center cursor-pointer"
+			onClick={() => toggle(!value)}
+		>
 			<Checkbox
 				className={`data-[state=checked]:border-indigo-600 data-[state=checked]:bg-indigo-600
 		      data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700
@@ -28,11 +33,7 @@ export const SettingsCard: React.FC<Props> = ({
 				checked={value}
 				onCheckedChange={toggle}
 			/>
-			<p
-				onClick={() => toggle(!value)}
-				onKeyUp={() => {}}
-				className="text-sm leading-none font-medium cursor-pointer"
-			>
+			<p onKeyUp={() => {}} className="text-sm leading-none font-medium">
 				{title}
 			</p>
 		</div>

@@ -129,6 +129,17 @@
 	}
 }
 
+@utility click-padding-* {
+	position: relative;
+
+	&::after {
+		content: "";
+		position: absolute;
+		inset: calc(--spacing(--value(integer)) * -1);
+		inset: calc(--value([length]) * -1);
+	}
+}
+
 #root,
 body,
 html {
