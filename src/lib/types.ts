@@ -100,10 +100,16 @@ export type Image = {
 			id: ImageId;
 			processed: true;
 			name: string;
-			originalSize: number;
-			processedSize: number;
+			size: number;
 			data: ArrayBuffer;
+
 			mimeType: string;
+
+			original: {
+				data: ArrayBuffer;
+				size: number;
+				mimeType: string;
+			};
 	  }
 );
 

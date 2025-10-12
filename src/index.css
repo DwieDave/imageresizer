@@ -140,6 +140,96 @@
 	}
 }
 
+@utility text-outline-* {
+	--tw-outline-color: #000;
+	--tw-outline-width: --spacing(--value(integer));
+	-webkit-text-stroke: var(--tw-outline-width)
+		var(--tw-outline-color, currentColor);
+	text-stroke: var(--tw-outline-width) var(--tw-outline-color, currentColor);
+	paint-order: stroke fill;
+}
+
+.polaroid-frame {
+	background: white;
+	padding: 0.75rem;
+	padding-bottom: 2.5rem;
+	box-shadow:
+		0 1px 3px 0 rgb(0 0 0 / 0.1),
+		0 1px 2px -1px rgb(0 0 0 / 0.1);
+	transition: all 0.3s ease;
+}
+
+.polaroid-frame:hover {
+	box-shadow:
+		0 10px 15px -3px rgb(0 0 0 / 0.1),
+		0 4px 6px -4px rgb(0 0 0 / 0.1);
+	transform: translateY(-2px);
+}
+
+.dark .polaroid-frame {
+	background: oklch(0.95 0 0);
+}
+
+/* Scrollbar styling */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: oklch(0.708 0 0) transparent;
+}
+
+.dark * {
+	scrollbar-color: oklch(0.556 0 0) transparent;
+}
+
+::-webkit-scrollbar {
+	width: 12px;
+	background: transparent;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: oklch(0.708 0 0);
+	border-radius: 6px;
+	border: 3px solid transparent;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: oklch(0.556 0 0);
+	background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+	background: oklch(0.556 0 0);
+	background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: oklch(0.708 0 0);
+	background-clip: padding-box;
+}
+
+/* @layer components { */
+/* 	.text-outline { */
+/* 		@apply text-white; */
+/* 		text-shadow: */
+/* 			-1px -1px 0 black, */
+/* 			1px -1px 0 black, */
+/* 			-1px 1px 0 black, */
+/* 			1px 1px 0 black, */
+/* 			-2px 0 0 black, */
+/* 			2px 0 0 black, */
+/* 			0 -2px 0 black, */
+/* 			0 2px 0 black; */
+/* 	} */
+/* } */
+
 #root,
 body,
 html {
@@ -152,4 +242,32 @@ html {
 	max-width: 1280px;
 	margin: 0 auto;
 	text-align: center;
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes scale-in {
+	from {
+		transform: scale(0.9);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.animate-fade-in {
+	animation: fade-in 0.2s ease-out;
+}
+
+.animate-scale-in {
+	animation: scale-in 0.3s ease-out;
 }

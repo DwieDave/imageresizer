@@ -41,14 +41,18 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 			id,
 			processed: true,
 			name: yield* newName(image.file.name, config.export.format),
-			originalSize: imageData.byteLength,
-			processedSize: processedData.byteLength,
+			original: {
+				size: imageData.byteLength,
+				data: imageData,
+				mimeType: image.file.type,
+			},
+			size: processedData.byteLength,
 			data: processedData,
 			mimeType: `image/${config.export.format ?? "jpeg"}`,
 		};
 
 		yield* Effect.log(
-			`Processed ${image.file.name}: ${result.originalSize} -> ${result.processedSize} bytes`,
+			`Processed ${image.file.name}: ${result.original.size} -> ${result.size} bytes`,
 		);
 
 		return result;
