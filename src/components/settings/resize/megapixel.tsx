@@ -2,18 +2,15 @@ import { Input } from "@/components/ui/input";
 import { useConfig } from "@/hooks/useConfig";
 
 export const MegaPixelResizeSetting = () => {
-	const { config, setConfig } = useConfig();
+	const { config, set } = useConfig();
 	if (config.resize.mode !== "megapixel") return null;
 
 	const setMegaPixel = (event: React.ChangeEvent<HTMLInputElement>) =>
-		setConfig((old) => ({
+		set.resize((old) => ({
 			...old,
-			resize: {
-				...old.resize,
-				settings: {
-					...old.resize.settings,
-					megapixel: Number(event.currentTarget.value),
-				},
+			settings: {
+				...old.settings,
+				megapixel: Number(event.currentTarget.value),
 			},
 		}));
 

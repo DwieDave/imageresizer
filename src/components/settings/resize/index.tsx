@@ -9,12 +9,12 @@ import { WidthHeightResizeSetting } from "./WidthHeight.tsx";
 type ResizeTag = Configuration["resize"]["mode"];
 
 export const ResizeSettings = () => {
-	const { config, setConfig, toggleOperation } = useConfig();
+	const { config, set, toggle } = useConfig();
 
 	const changeResizeMode = (tag: ResizeTag) =>
-		setConfig((old) => ({
+		set.resize((old) => ({
 			...old,
-			resize: { ...old.resize, mode: tag },
+			mode: tag,
 		}));
 
 	const tabs: { value: ResizeTag; name: string; short: string }[] = [
@@ -42,7 +42,7 @@ export const ResizeSettings = () => {
 		<SettingsCard
 			title="Resize"
 			value={config.resize.enabled}
-			toggle={toggleOperation("resize")}
+			toggle={toggle("resize")}
 		>
 			<Tabs
 				defaultValue={config.resize.mode}

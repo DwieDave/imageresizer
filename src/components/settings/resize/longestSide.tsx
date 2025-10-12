@@ -2,18 +2,17 @@ import { Input } from "@/components/ui/input";
 import { useConfig } from "@/hooks/useConfig";
 
 export const LongestSideResizeSetting = () => {
-	const { config, setConfig } = useConfig();
+	const { config, set } = useConfig();
 	if (config.resize.mode !== "longestSide") return null;
 
-	const setLongestSide = (event: React.ChangeEvent<HTMLInputElement>) =>
-		setConfig((old) => ({
+	const setLongestSide = ({
+		currentTarget: { value },
+	}: React.ChangeEvent<HTMLInputElement>) =>
+		set.resize((old) => ({
 			...old,
-			resize: {
-				...old.resize,
-				settings: {
-					...old.resize.settings,
-					longestSide: Number(event.currentTarget.value),
-				},
+			settings: {
+				...old.settings,
+				longestSide: Number(value),
 			},
 		}));
 

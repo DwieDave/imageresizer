@@ -11,18 +11,18 @@ import { type Format, FormatSchema } from "@/lib/types";
 import { SettingsCard } from "./Card.tsx";
 
 export const FormatSettings = () => {
-	const { config, setConfig, toggleOperation } = useConfig();
+	const { config, set, toggle } = useConfig();
 	const change = (val: string) =>
-		setConfig((old) => ({
+		set.export((old) => ({
 			...old,
-			export: { ...old.export, format: val as Format },
+			format: val as Format,
 		}));
 
 	return (
 		<SettingsCard
 			title="Export"
 			value={config.export.enabled}
-			toggle={toggleOperation("export")}
+			toggle={toggle("export")}
 		>
 			<div className="p-2">
 				<Label htmlFor="format" className="mb-2">

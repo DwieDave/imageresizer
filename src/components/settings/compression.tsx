@@ -4,14 +4,20 @@ import { useConfig } from "@/hooks/useConfig";
 import { SettingsCard } from "./Card.tsx";
 
 export const CompressionSettings = () => {
-	const { config, setConfig, toggleOperation } = useConfig();
+	const { config, set, toggle } = useConfig();
 	const compressionPercent = Math.round(config.compression.value * 100);
+
+	const setCompression = ([value]: number[]) =>
+		set.compression((old) => ({
+			...old,
+			value: value / 100,
+		}));
 
 	return (
 		<SettingsCard
 			title="Compression"
 			value={config.compression.enabled}
-			toggle={toggleOperation("compression")}
+			toggle={toggle("compression")}
 		>
 			<div className="p-2">
 				<div>
@@ -22,15 +28,7 @@ export const CompressionSettings = () => {
 							value={[compressionPercent]}
 							max={99}
 							step={1}
-							onValueChange={(val) =>
-								setConfig((old) => ({
-									...old,
-									compression: {
-										...old.compression,
-										value: val[0] / 100,
-									},
-								}))
-							}
+							onValueChange={setCompression}
 						/>
 						<span className="tabular-nums">{compressionPercent}%</span>
 					</div>

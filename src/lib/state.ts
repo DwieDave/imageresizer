@@ -1,10 +1,17 @@
 import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { Atom, Registry } from "@effect-atom/atom-react";
 import { Array, Effect, pipe, Record } from "effect";
-import { Configuration, type Image, type ImageId } from "@/lib/types";
+import {
+	CompressionConfiguration,
+	ExportConfiguration,
+	type Image,
+	type ImageId,
+	ResizeConfiguration,
+} from "@/lib/types";
 import { MAX_POOL_SIZE, poolSize, processImages } from "./workerPool";
 
 export const stateRegistry = Registry.make();
+const runtime = Atom.runtime(BrowserKeyValueStore.layerLocalStorage);
 
 type ImageRecord = Record<ImageId, Image>;
 export const imagesAtom = Atom.make<ImageRecord>({});
@@ -44,12 +51,32 @@ export const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
 	),
 );
 
-export const configurationAtom = Atom.kvs({
-	runtime: Atom.runtime(BrowserKeyValueStore.layerLocalStorage),
-	key: "configuration",
-	schema: Configuration,
-	defaultValue: () => Configuration.default,
+export const resizeConfigurationAtom = Atom.kvs({
+	runtime,
+	key: "resizeConfiguration",
+	schema: ResizeConfiguration,
+	defaultValue: () => ResizeConfiguration.default,
 });
+
+export const compressionConfigurationAtom = Atom.kvs({
+	runtime,
+	key: "compressionConfiguration",
+	schema: CompressionConfiguration,
+	defaultValue: () => CompressionConfiguration.default,
+});
+
+export const exportConfigurationAtom = Atom.kvs({
+	runtime,
+	key: "exportConfiguration",
+	schema: ExportConfiguration,
+	defaultValue: () => ExportConfiguration.default,
+});
+
+export const configurationAtom = Atom.make((get) => ({
+	resize: get(resizeConfigurationAtom),
+	compression: get(compressionConfigurationAtom),
+	export: get(exportConfigurationAtom),
+}));
 
 export const showSuccessAtom = Atom.make(false);
 

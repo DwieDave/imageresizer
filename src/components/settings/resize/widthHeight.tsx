@@ -2,27 +2,20 @@ import { Input } from "@/components/ui/input";
 import { useConfig } from "@/hooks/useConfig";
 
 export const WidthHeightResizeSetting = () => {
-	const { config, setConfig } = useConfig();
+	const { config, set } = useConfig();
 	if (config.resize.mode !== "widthHeight") return null;
 
-	const set =
+	const setDim =
 		(dim: "width" | "height") =>
 		({ currentTarget: { value } }: React.ChangeEvent<HTMLInputElement>) =>
-			setConfig((old) => ({
+			set.resize((old) => ({
 				...old,
-				resize: {
-					...old.resize,
-					settings: {
-						...old.resize.settings,
-						widthHeight: [
-							dim === "width"
-								? Number(value)
-								: old.resize.settings.widthHeight[0],
-							dim === "height"
-								? Number(value)
-								: old.resize.settings.widthHeight[1],
-						],
-					},
+				settings: {
+					...old.settings,
+					widthHeight:
+						dim === "width"
+							? [Number(value), old.settings.widthHeight[1]]
+							: [old.settings.widthHeight[0], Number(value)],
 				},
 			}));
 
@@ -32,7 +25,7 @@ export const WidthHeightResizeSetting = () => {
 				placeholder="Width"
 				type="number"
 				value={config.resize.settings.widthHeight[0]}
-				onChange={set("width")}
+				onChange={setDim("width")}
 				min="1"
 				className="h-8"
 			/>
@@ -41,7 +34,7 @@ export const WidthHeightResizeSetting = () => {
 				placeholder="Height"
 				type="number"
 				value={config.resize.settings.widthHeight[1]}
-				onChange={set("height")}
+				onChange={setDim("height")}
 				min="1"
 				className="h-8"
 			/>

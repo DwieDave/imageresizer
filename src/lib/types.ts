@@ -35,47 +35,59 @@ const ModeSettings = Schema.Struct({
 	megapixel: Schema.Positive,
 });
 
-export class Configuration extends Schema.Class<Configuration>("Configuration")(
-	{
-		compression: Schema.Struct({
-			enabled: Schema.Boolean,
-			value: Schema.Positive.pipe(Schema.filter((i) => i <= 1 && i >= 0)),
-		}),
-		resize: Schema.Struct({
-			enabled: Schema.Boolean,
-			mode: Mode,
-			settings: ModeSettings,
-		}),
-		export: Schema.Struct({
-			enabled: Schema.Boolean,
-			format: FormatSchema,
-			exif: Schema.Boolean,
-			gps: Schema.Boolean,
-		}),
-	},
-) {
-	public static default = Configuration.make({
-		compression: {
-			enabled: true,
-			value: 0.75,
-		},
-		resize: {
-			enabled: true,
-			mode: "longestSide",
-			settings: {
-				widthHeight: [1920, 1080],
-				longestSide: 1920,
-				megapixel: 6,
-			},
-		},
-		export: {
-			enabled: true,
-			format: "jpeg",
-			exif: false,
-			gps: false,
+export class ResizeConfiguration extends Schema.Class<ResizeConfiguration>(
+	"ResizeConfiguration",
+)({
+	enabled: Schema.Boolean,
+	mode: Mode,
+	settings: ModeSettings,
+}) {
+	public static default = ResizeConfiguration.make({
+		enabled: true,
+		mode: "longestSide",
+		settings: {
+			widthHeight: [1920, 1080],
+			longestSide: 1920,
+			megapixel: 6,
 		},
 	});
 }
+
+export class CompressionConfiguration extends Schema.Class<CompressionConfiguration>(
+	"CompressionConfiguration",
+)({
+	enabled: Schema.Boolean,
+	value: Schema.Number,
+}) {
+	public static default = CompressionConfiguration.make({
+		enabled: true,
+		value: 0.75,
+	});
+}
+
+export class ExportConfiguration extends Schema.Class<ExportConfiguration>(
+	"ExportConfiguration",
+)({
+	enabled: Schema.Boolean,
+	format: FormatSchema,
+	exif: Schema.Boolean,
+	gps: Schema.Boolean,
+}) {
+	public static default = ExportConfiguration.make({
+		enabled: true,
+		format: "jpeg",
+		exif: false,
+		gps: false,
+	});
+}
+
+export class Configuration extends Schema.Class<Configuration>("Configuration")(
+	{
+		compression: CompressionConfiguration,
+		resize: ResizeConfiguration,
+		export: ExportConfiguration,
+	},
+) {}
 
 export type ImageId = string & Brand.Brand<"ImageId">;
 export const makeImageId = Brand.nominal<ImageId>();

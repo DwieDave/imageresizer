@@ -1,18 +1,28 @@
-import { useAtom } from "@effect-atom/atom-react";
-import { configurationAtom } from "@/lib/state";
+import { useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import {
+	compressionConfigurationAtom,
+	configurationAtom,
+	exportConfigurationAtom,
+	resizeConfigurationAtom,
+} from "@/lib/state";
 
 export const useConfig = () => {
-	const [config, setConfig] = useAtom(configurationAtom);
+	const config = useAtomValue(configurationAtom);
 
-	const toggleOperation =
-		(operation: "resize" | "compression" | "export") => (checked: boolean) =>
-			setConfig((old) => ({
+	const set = {
+		resize: useAtomSet(resizeConfigurationAtom),
+		compression: useAtomSet(compressionConfigurationAtom),
+		export: useAtomSet(exportConfigurationAtom),
+	} as const;
+
+	const toggle =
+		(operation: "resize" | "compression" | "export") => (checked: boolean) => {
+			const reducer = <A extends { enabled: boolean }>(old: A) => ({
 				...old,
-				[operation]: {
-					...old[operation],
-					enabled: !!checked,
-				},
-			}));
+				enabled: checked,
+			});
+			set[operation](reducer);
+		};
 
-	return { toggleOperation, setConfig, config };
+	return { toggle, set, config };
 };
