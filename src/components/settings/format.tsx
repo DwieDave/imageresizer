@@ -1,3 +1,4 @@
+import { Label } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -7,25 +8,14 @@ import {
 } from "@/components/ui/select";
 import { useConfig } from "@/hooks/useConfig";
 import { type Format, FormatSchema } from "@/lib/types";
-import { cn } from "@/lib/utils.ts";
-import { Checkbox } from "../ui/checkbox.tsx";
-import style from "./style.ts";
+import { SettingsCard } from "./Card.tsx";
 
 export const FormatSettings = () => {
-	const { config, setConfig } = useConfig();
+	const { config, setConfig, toggleOperation } = useConfig();
 	const change = (val: string) =>
 		setConfig((old) => ({
 			...old,
 			export: { ...old.export, format: val as Format },
-		}));
-
-	const toggle = (val: boolean) =>
-		setConfig((old) => ({
-			...old,
-			export: {
-				...old.export,
-				enabled: val,
-			},
 		}));
 
 	return (
@@ -37,24 +27,20 @@ export const FormatSettings = () => {
 			<div className="p-2">
 				<Label htmlFor="format" className="mb-2">
 					Format
-				</p>
+				</Label>
+				<Select value={config.export.format} onValueChange={change}>
+					<SelectTrigger className="w-full">
+						<SelectValue placeholder="Export Format" />
+					</SelectTrigger>
+					<SelectContent>
+						{FormatSchema.literals.map((format) => (
+							<SelectItem key={`format-${format}`} value={format}>
+								{format.toUpperCase()}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
-			{config.export.enabled && (
-				<div className={cn(style.sectionContainer, "p-2")}>
-					<Select value={config.export.format} onValueChange={change}>
-						<SelectTrigger className="w-full">
-							<SelectValue placeholder="Export Format" />
-						</SelectTrigger>
-						<SelectContent>
-							{FormatSchema.literals.map((format) => (
-								<SelectItem key={`format-${format}`} value={format}>
-									{format.toUpperCase()}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				</div>
-			)}
-		</div>
+		</SettingsCard>
 	);
 };

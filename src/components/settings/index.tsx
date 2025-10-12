@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { CompressionSettings } from "./compression";
-import { FormatSettings } from "./format";
+import { CompressionSettings } from "./Compression";
+import { FormatSettings } from "./Format";
 import { ResizeSettings } from "./resize";
 
 export const Settings = ({ className }: { className?: string }) => {
