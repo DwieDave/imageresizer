@@ -9,7 +9,12 @@ import {
 	ImageMagickService,
 	ImageMagickWasmBytes,
 } from "@/lib/imagemagick";
-import { Configuration } from "@/lib/types";
+import {
+	CompressionConfiguration,
+	type Configuration,
+	ExportConfiguration,
+	ResizeConfiguration,
+} from "@/lib/types";
 import { arrayBufferToUint8Array } from "@/lib/utils";
 import { dimension, loadTestImages } from "./utils";
 
@@ -43,7 +48,11 @@ describe("imagemagick", () => {
 	const images = loadTestImages();
 
 	const dimensions = flow(arrayBufferToUint8Array, imageDimensionsFromData);
-	const defaultConfig = Configuration.default;
+	const defaultConfig = {
+		resize: ResizeConfiguration.default,
+		compression: CompressionConfiguration.default,
+		export: ExportConfiguration.default,
+	} satisfies Configuration;
 
 	it.effect("should process TestImages successfull", () =>
 		Effect.gen(function* () {
