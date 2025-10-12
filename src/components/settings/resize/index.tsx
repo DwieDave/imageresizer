@@ -1,10 +1,10 @@
+import { SettingsCard } from "@/components/settings/Card";
+import { LongestSideResizeSetting } from "@/components/settings/resize/LongestSide";
+import { MegaPixelResizeSetting } from "@/components/settings/resize/Megapixel";
+import { WidthHeightResizeSetting } from "@/components/settings/resize/WidthHeight";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useConfig } from "@/hooks/useConfig";
 import type { Configuration } from "@/lib/types";
-import { SettingsCard } from "../Card.tsx";
-import { LongestSideResizeSetting } from "./LongestSide.tsx";
-import { MegaPixelResizeSetting } from "./Megapixel.tsx";
-import { WidthHeightResizeSetting } from "./WidthHeight.tsx";
 
 type ResizeTag = Configuration["resize"]["mode"];
 

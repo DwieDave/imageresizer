@@ -1,7 +1,7 @@
+import { CompressionSettings } from "@/components/settings/Compression";
+import { FormatSettings } from "@/components/settings/Format";
+import { ResizeSettings } from "@/components/settings/resize";
 import { cn } from "@/lib/utils";
-import { CompressionSettings } from "./Compression";
-import { FormatSettings } from "./Format";
-import { ResizeSettings } from "./resize";
 
 export const Settings = ({ className }: { className?: string }) => {
 	return (

@@ -1,6 +1,6 @@
 import { Worker as EffectWorker } from "@effect/platform";
 import type { WorkerError } from "@effect/platform/WorkerError";
-import { BrowserRuntime, BrowserWorker } from "@effect/platform-browser";
+import { BrowserWorker } from "@effect/platform-browser";
 import {
 	Array,
 	Chunk,
@@ -19,7 +19,6 @@ import {
 	configurationAtom,
 	errorAtom,
 	imagesAtom,
-	showSuccessAtom,
 	stateRegistry,
 } from "@/lib/state";
 import type {
