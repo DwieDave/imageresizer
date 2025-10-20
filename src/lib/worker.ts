@@ -48,12 +48,7 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 			id,
 			processed: true,
 			name: yield* newName(image.file.name, config.export.format),
-			original: {
-				file: image.file,
-				// size: imageData.byteLength,
-				// data: imageData,
-				// mimeType: image.file.type,
-			},
+			original: { file: image.file },
 			size: processedData.byteLength,
 			data: processedData,
 			url: processedUrl,

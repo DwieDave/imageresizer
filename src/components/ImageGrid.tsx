@@ -1,7 +1,7 @@
 import { useAtomValue } from "@effect-atom/atom-react";
 import { pipe, Record } from "effect";
 import { imagesAtom } from "@/lib/state";
-import { Container } from "./App";
+import { Container } from "./Container";
 import { ImageView } from "./ImageView";
 
 export const ImageGrid = () => {

@@ -103,9 +103,7 @@ export type Image = {
 			size: number;
 			data: ArrayBuffer;
 			url: string;
-
 			mimeType: string;
-
 			original: {
 				file: File;
 			};
