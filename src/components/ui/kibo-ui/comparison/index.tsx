@@ -43,7 +43,7 @@ const useImageComparisonContext = () => {
   return context;
 };
 
-export type ComparisonProps = HTMLAttributes<HTMLDivElement> & {
+type ComparisonProps = HTMLAttributes<HTMLDivElement> & {
   mode?: "hover" | "drag";
   onDragStart?: () => void;
   onDragEnd?: () => void;
@@ -138,7 +138,7 @@ export const Comparison = ({
   );
 };
 
-export type ComparisonItemProps = ComponentProps<typeof motion.div> & {
+type ComparisonItemProps = ComponentProps<typeof motion.div> & {
   position: "left" | "right";
 };
 
@@ -170,7 +170,7 @@ export const ComparisonItem = ({
   );
 };
 
-export type ComparisonHandleProps = ComponentProps<typeof motion.div> & {
+type ComparisonHandleProps = ComponentProps<typeof motion.div> & {
   children?: ReactNode;
 };
 

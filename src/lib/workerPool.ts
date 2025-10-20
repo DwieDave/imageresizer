@@ -92,7 +92,7 @@ export const preProcessImages = (
 			),
 	);
 
-export const postProcessImages = (
+const postProcessImages = (
 	processedImagesFx: Effect.Effect<
 		ProcessedImage[],
 		WorkerError | NoSuchElementException

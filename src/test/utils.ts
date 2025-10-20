@@ -9,25 +9,25 @@ import {
 	makeImageId,
 } from "@/lib/types";
 
-export const fixture = (name: string) =>
+const fixture = (name: string) =>
 	path.join(import.meta.dirname, "/fixtures/", name);
 
-export const toFile =
+const toFile =
 	(name: string) => (type: "jpg" | "png") => (buffer: NonSharedBuffer) => {
 		const uint8View = new Uint8Array(buffer);
 		return new NodeFile([uint8View], name, { type });
 	};
 
-export const toImage = (file: NodeFile): InputImage =>
+const toImage = (file: NodeFile): InputImage =>
 	({
 		processed: false,
 		file,
 	}) as unknown as InputImage;
 
-export const toType = (name: string): "jpg" | "png" =>
+const toType = (name: string): "jpg" | "png" =>
 	name.includes(".jpg") ? "jpg" : "png";
 
-export const loadImage = (name: string) =>
+const loadImage = (name: string) =>
 	pipe(name, fixture, readFileSync, toFile(name)(toType(name)), toImage);
 
 export const loadTestImages = () => {

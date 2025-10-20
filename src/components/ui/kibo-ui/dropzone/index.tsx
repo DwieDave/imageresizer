@@ -33,7 +33,7 @@ const DropzoneContext = createContext<DropzoneContextType | undefined>(
 	undefined,
 );
 
-export type DropzoneProps = Omit<DropzoneOptions, "onDrop"> & {
+type DropzoneProps = Omit<DropzoneOptions, "onDrop"> & {
 	src?: File[];
 	className?: string;
 	onDrop?: (
@@ -109,7 +109,7 @@ const useDropzoneContext = () => {
 	return context;
 };
 
-export type DropzoneContentProps = {
+type DropzoneContentProps = {
 	children?: ReactNode;
 	className?: string;
 };
@@ -149,7 +149,7 @@ export const DropzoneContent = ({
 	);
 };
 
-export type DropzoneEmptyStateProps = {
+type DropzoneEmptyStateProps = {
 	children?: ReactNode;
 	className?: string;
 };

@@ -24,7 +24,7 @@ export const cpuCountAtom = Atom.map(imageCountAtom, (count) =>
 export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
 	Record.filter(imgs, (img) => img.processed),
 );
-export const processedImageArrayAtom = Atom.map(
+const processedImageArrayAtom = Atom.map(
 	processedImagesAtom,
 	(imgRecord) => Record.toEntries(imgRecord).map(([_, img]) => img),
 );
@@ -42,7 +42,7 @@ export const isProcessingAtom = Atom.map(
 		) > 0,
 );
 
-export const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
+const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
 	pipe(
 		imageRecord,
 		Record.filter((image) => !image.processed),
@@ -78,7 +78,7 @@ export const configurationAtom = Atom.make((get) => ({
 	export: get(exportConfigurationAtom),
 }));
 
-export const showSuccessAtom = Atom.make(false);
+const showSuccessAtom = Atom.make(false);
 
 export const errorAtom = Atom.make<
 	{ show: false } | { show: true; message: string; cause?: string }

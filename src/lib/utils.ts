@@ -11,7 +11,7 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export const arrayBufferToBlob = (buffer: ArrayBuffer) =>
+const arrayBufferToBlob = (buffer: ArrayBuffer) =>
 	new Blob([new Uint8Array(buffer)]);
 
 export const arrayBufferToUint8Array = (buffer: ArrayBuffer) =>
