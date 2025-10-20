@@ -14,7 +14,7 @@ export const ProgressBar = () => {
 	const progressId = useId();
 
 	return (
-		<div className="flex flex-row items-center gap-3">
+		<div className="h-[36px] flex flex-row items-center gap-3">
 			<div className="relative">
 				<Cpu />
 				<div className="absolute -bottom-1 -right-1 bg-green-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-medium">

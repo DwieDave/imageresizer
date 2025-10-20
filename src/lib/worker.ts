@@ -36,23 +36,32 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 
 		// Process the image
 		const processedData = yield* imageMagick.processImage(imageData, config);
+		const mimeType = `image/${config.export.format ?? "jpeg"}`;
+
+		const processedBlob = new Blob([processedData], {
+			type: mimeType,
+		});
+
+		const processedUrl = URL.createObjectURL(processedBlob);
 
 		const result: ProcessedImage = {
 			id,
 			processed: true,
 			name: yield* newName(image.file.name, config.export.format),
 			original: {
-				size: imageData.byteLength,
-				data: imageData,
-				mimeType: image.file.type,
+				file: image.file,
+				// size: imageData.byteLength,
+				// data: imageData,
+				// mimeType: image.file.type,
 			},
 			size: processedData.byteLength,
 			data: processedData,
-			mimeType: `image/${config.export.format ?? "jpeg"}`,
+			url: processedUrl,
+			mimeType,
 		};
 
 		yield* Effect.log(
-			`Processed ${image.file.name}: ${result.original.size} -> ${result.size} bytes`,
+			`Processed ${image.file.name}: ${result.original.file.size} -> ${result.size} bytes`,
 		);
 
 		return result;

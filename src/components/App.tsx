@@ -1,4 +1,5 @@
-import { useAtom, useAtomValue } from "@effect-atom/atom-react";
+import { useAtom, useAtomSet, useAtomValue } from "@effect-atom/atom-react";
+import { Record } from "effect";
 import { CircleCheckBig, CircleX, LoaderCircle } from "lucide-react";
 import type { ReactNode } from "react";
 import { Header } from "@/components/Header";
@@ -6,14 +7,15 @@ import { ImageDropzone } from "@/components/ImageDropzone";
 import { Settings } from "@/components/settings";
 import {
 	errorAtom,
+	imagesAtom,
 	isProcessingAtom,
 	processedCountAtom,
-	showSuccessAtom,
+	processedImagesAtom,
 } from "@/lib/state";
+import { cn } from "@/lib/utils";
+import { ImageGrid } from "./ImageGrid";
 import { ProgressBar } from "./ProgressBar";
 import { Button } from "./ui/button";
-import { ImageGrid } from "./ImageGrid";
-import { cn } from "@/lib/utils";
 
 export const Container = ({
 	children,
@@ -32,13 +34,27 @@ export const Container = ({
 	</div>
 );
 
-const SuccessMessage = ({ processedCount }: { processedCount: number }) => (
-	<Container>
-		<CircleCheckBig className="size-10" color="var(--color-green-600)" />
-		{processedCount} images successfully processed
-		<br /> and downloaded as .zip
-	</Container>
-);
+const Success = ({ processedCount }: { processedCount: number }) => {
+	const setImages = useAtomSet(imagesAtom);
+	const processedImages = useAtomValue(processedImagesAtom);
+
+	const reset = () => {
+		Record.values(processedImages).forEach((img) => {
+			URL.revokeObjectURL(img.url);
+		});
+		setImages({});
+	};
+
+	return (
+		<div className="flex items-center justify-end gap-3">
+			<CircleCheckBig className="size-5" color="var(--color-green-600)" />
+			{processedCount} images downloaded as .zip
+			<Button variant="outline" className="cursor-pointer" onClick={reset}>
+				Done
+			</Button>
+		</div>
+	);
+};
 
 const ErrorMessage = () => {
 	const [error, setError] = useAtom(errorAtom);
@@ -47,7 +63,7 @@ const ErrorMessage = () => {
 	return (
 		<Container>
 			<CircleX className="size-10" color="var(--color-rose-700)" />
-			<div className="text-pretty text-wrap w-70">
+			<div className="text-pretty w-70">
 				{error.message}
 				<br /> {error.cause || null}
 			</div>
@@ -69,7 +85,6 @@ const Spinner = () => (
 );
 export const App = () => {
 	const isProcessing = useAtomValue(isProcessingAtom);
-	const showSuccess = useAtomValue(showSuccessAtom);
 	const processedCount = useAtomValue(processedCountAtom);
 	const error = useAtomValue(errorAtom);
 
@@ -89,7 +104,11 @@ export const App = () => {
 				)}
 			</div>
 
-			{isProcessing && <ProgressBar />}
+			{isProcessing ? (
+				<ProgressBar />
+			) : processedCount > 0 ? (
+				<Success processedCount={processedCount} />
+			) : null}
 		</div>
 	);
 };

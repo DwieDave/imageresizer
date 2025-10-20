@@ -102,13 +102,12 @@ export type Image = {
 			name: string;
 			size: number;
 			data: ArrayBuffer;
+			url: string;
 
 			mimeType: string;
 
 			original: {
-				data: ArrayBuffer;
-				size: number;
-				mimeType: string;
+				file: File;
 			};
 	  }
 );

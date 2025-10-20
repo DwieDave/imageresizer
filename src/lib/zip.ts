@@ -1,5 +1,5 @@
 import { BlobWriter, Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
-import { Effect } from "effect";
+import { Array, Effect } from "effect";
 import { arrayBufferToUint8Array } from "./utils";
 
 export const zipFiles = (
@@ -22,11 +22,20 @@ export const zipFiles = (
 		}),
 	);
 
+	const chunks = Array.chunksOf(fileFxs, 3).map((fxs) =>
+		Effect.all(fxs).pipe(Effect.tap(Effect.sleep("100 millis"))),
+	);
+
 	const closeWriter = () =>
 		Effect.tryPromise({
 			try: () => zipWriter.close(),
 			catch: () => new Error("couldn't close zip file"),
 		});
 
-	return Effect.all(fileFxs).pipe(Effect.flatMap(closeWriter));
+	const allChunks = Effect.all(chunks, { concurrency: 0 }).pipe(
+		Effect.map(Array.flatten),
+		Effect.flatMap(closeWriter),
+	);
+
+	return allChunks;
 };
