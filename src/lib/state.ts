@@ -24,10 +24,7 @@ export const cpuCountAtom = Atom.map(imageCountAtom, (count) =>
 export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
 	Record.filter(imgs, (img) => img.processed),
 );
-const processedImageArrayAtom = Atom.map(
-	processedImagesAtom,
-	(imgRecord) => Record.toEntries(imgRecord).map(([_, img]) => img),
-);
+const processedImageArrayAtom = Atom.map(processedImagesAtom, Record.values);
 export const processedCountAtom = Atom.map(processedImagesAtom, (imgs) =>
 	Record.size(imgs),
 );
@@ -86,11 +83,11 @@ export const errorAtom = Atom.make<
 
 export const processImagesAtom = Atom.fn(
 	Effect.fnUntraced(function* (images: ImageRecord) {
-		processImages(images).pipe(
-			Effect.tap(() => stateRegistry.set(showSuccessAtom, true)),
-			Effect.tap(() => Effect.sleep("3 seconds")),
-			Effect.tap(() => stateRegistry.set(showSuccessAtom, false)),
-			Effect.runSync,
-		);
+		Effect.gen(function* () {
+			yield* processImages(images);
+			stateRegistry.set(showSuccessAtom, true);
+			yield* Effect.sleep("3 seconds");
+			stateRegistry.set(showSuccessAtom, false);
+		}).pipe(Effect.runSync);
 	}),
 );

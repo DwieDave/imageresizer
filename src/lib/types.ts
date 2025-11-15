@@ -2,10 +2,6 @@ import { MagickFormat } from "@imagemagick/magick-wasm";
 import { Brand, Schema } from "effect";
 import type { Simplify } from "effect/Types";
 
-export interface MyWorkerPool {
-	readonly _: unique symbol;
-}
-
 export const FormatSchema = Schema.Literal(
 	"jpeg",
 	"png",

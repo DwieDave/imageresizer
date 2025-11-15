@@ -24,6 +24,7 @@ export class ImageProcessingError extends Data.TaggedError(
 )<{
 	operation: "READ" | "MANIPULATE" | "WRITE" | "UNKNOWN";
 	message: string;
+	cause: unknown;
 }> {}
 
 export class ImageMagickWasmBytes extends Context.Tag(
@@ -102,10 +103,11 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 						image.read(new Uint8Array(imageData));
 						return image;
 					},
-					catch: (error) =>
+					catch: (cause) =>
 						new ImageProcessingError({
+							cause,
 							operation: "READ",
-							message: `Error while reading an image: ${toCauseString(error)}`,
+							message: `Error while reading an image: ${toCauseString(cause)}`,
 						}),
 				}).pipe(
 					Effect.tap((image) =>
@@ -125,10 +127,11 @@ export class ImageMagickService extends Effect.Service<ImageMagickService>()(
 								},
 							);
 						}),
-					catch: (error) =>
+					catch: (cause) =>
 						new ImageProcessingError({
+							cause,
 							operation: "WRITE",
-							message: `Error while writing an image: ${toCauseString(error)}`,
+							message: `Error while writing an image: ${toCauseString(cause)}`,
 						}),
 				});
 

@@ -11,8 +11,7 @@ const formatReplacementMap: Partial<Record<Format, string>> = {
 };
 
 const newName = (file: string, format: Format) =>
-	Effect.gen(function* () {
-		const path = yield* Path.Path;
+	Effect.map(Path.Path, (path) => {
 		const { name } = path.parse(file);
 		const newFormat = formatReplacementMap[format] ?? format;
 		return `${name}.${newFormat}`;
@@ -31,6 +30,7 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 				new ImageProcessingError({
 					operation: "READ",
 					message: `Failed to read input file: ${isError(error) ? error.message : "Unknown cause"}`,
+					cause: error,
 				}),
 		});
 
@@ -61,10 +61,10 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 
 		return result;
 	}).pipe(
-		Effect.catchAll((error) => {
-			console.error(error);
-			return new WorkerError({ reason: "unknown", cause: error });
-		}),
+		Effect.tapError((error) => Effect.sync(() => console.error(error))),
+		Effect.mapError(
+			(error) => new WorkerError({ reason: "unknown", cause: error }),
+		),
 	);
 
 const streamFromInput = flow(processImage, Stream.fromEffect);

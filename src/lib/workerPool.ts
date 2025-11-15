@@ -1,19 +1,7 @@
 import { Worker as EffectWorker } from "@effect/platform";
 import type { WorkerError } from "@effect/platform/WorkerError";
 import { BrowserWorker } from "@effect/platform-browser";
-import {
-	Array,
-	Chunk,
-	Console,
-	Context,
-	Effect,
-	flow,
-	Layer,
-	pipe,
-	Record,
-	Stream,
-} from "effect";
-import type { NoSuchElementException } from "effect/Cause";
+import { Array, Console, Effect, pipe, Record, Stream } from "effect";
 import { isError } from "effect/Predicate";
 import {
 	configurationAtom,
@@ -21,56 +9,52 @@ import {
 	imagesAtom,
 	stateRegistry,
 } from "@/lib/state";
-import type {
-	Image,
-	ImageId,
-	MyWorkerPool,
-	ProcessedImage,
-	WorkerInput,
-} from "@/lib/types";
+import type { Image, ImageId, ProcessedImage, WorkerInput } from "@/lib/types";
 import { downloadImages, updateImage } from "@/lib/utils";
 import workerUrl from "@/lib/worker.ts?worker&url";
-
-const Pool = Context.GenericTag<
-	MyWorkerPool,
-	EffectWorker.WorkerPool<WorkerInput, ProcessedImage>
->("@app/MyWorkerPool");
 
 export const MAX_POOL_SIZE = navigator.hardwareConcurrency;
 
 export const poolSize = (nrCores: number) => (imagesLength: number) =>
 	pipe(imagesLength / 2, Math.round, (_) => Math.min(_, nrCores));
 
-const makePoolLive = (size: number) =>
-	EffectWorker.makePoolLayer(Pool, { size }).pipe(
-		Layer.provide(
-			BrowserWorker.layer(() => new Worker(workerUrl, { type: "module" })),
-		),
-	);
+// Worker Pool Service using Effect.Service pattern
+export class WorkerPoolService extends Effect.Service<WorkerPoolService>()(
+	"WorkerPoolService",
+	{
+		scoped: Effect.gen(function* () {
+			const size = MAX_POOL_SIZE;
+			const pool = yield* EffectWorker.makePool<
+				WorkerInput,
+				ProcessedImage,
+				WorkerError
+			>({ size });
 
-const makePool = flow(
-	(cores: number, imgs: number) => poolSize(cores)(imgs),
-	makePoolLive,
-);
-
-const executePool = (input: WorkerInput[]) =>
-	Pool.pipe(
-		Effect.flatMap((pool) =>
-			Effect.all(
-				input.map((img) =>
-					pool
-						.execute(img)
-						.pipe(
+			const execute = (input: WorkerInput[]) =>
+				Effect.all(
+					input.map((img) =>
+						pool.execute(img).pipe(
 							Stream.tap(updateImage),
-							Stream.runCollect,
-							Effect.flatMap(Chunk.head),
+							Stream.runHead,
+							Effect.flatMap((option) =>
+								option._tag === "Some"
+									? Effect.succeed(option.value)
+									: Effect.dieMessage(
+											"Expected at least one result from worker",
+										),
+							),
 						),
-				),
-				{ concurrency: "inherit" },
-			),
-		),
-		Effect.provide(makePool(input.length, MAX_POOL_SIZE)),
-	);
+					),
+					{ concurrency: "inherit" },
+				);
+
+			return { execute } as const;
+		}),
+		dependencies: [
+			BrowserWorker.layer(() => new Worker(workerUrl, { type: "module" })),
+		],
+	},
+) {}
 
 export const preProcessImages = (
 	images: Record<ImageId, Image>,
@@ -93,28 +77,29 @@ export const preProcessImages = (
 	);
 
 const postProcessImages = (
-	processedImagesFx: Effect.Effect<
-		ProcessedImage[],
-		WorkerError | NoSuchElementException
-	>,
+	processedImagesFx: Effect.Effect<ProcessedImage[], WorkerError>,
 ) =>
 	processedImagesFx.pipe(
 		Effect.flatMap(downloadImages),
-		Effect.catchTags({
-			WorkerError: (error) => {
-				stateRegistry.set(errorAtom, {
-					show: true,
-					message: error.message,
-					cause: isError(error.cause) ? error.cause.message : undefined,
-				});
-				stateRegistry.set(imagesAtom, {});
-				return Console.error(error);
-			},
+		Effect.catchTag("WorkerError", (error) => {
+			stateRegistry.set(errorAtom, {
+				show: true,
+				message: error.message,
+				cause: isError(error.cause) ? error.cause.message : undefined,
+			});
+			stateRegistry.set(imagesAtom, {});
+			return Console.error(error);
 		}),
 	);
 
-export const processImages = flow(
-	preProcessImages,
-	executePool,
-	postProcessImages,
-);
+export const processImages = (images: Record<ImageId, Image>) =>
+	pipe(
+		images,
+		preProcessImages,
+		(input) =>
+			WorkerPoolService.pipe(
+				Effect.flatMap((service) => service.execute(input)),
+				Effect.provide(WorkerPoolService.Default),
+			),
+		postProcessImages,
+	);
