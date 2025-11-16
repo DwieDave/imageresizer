@@ -6,7 +6,14 @@ import path from "node:path";
 // https://vite.dev/config/
 export default defineConfig({
 	base: "/imageresizer/",
-	plugins: [react(), tailwindcss()],
+	plugins: [
+		react({
+			babel: {
+				plugins: [["babel-plugin-react-compiler"]],
+			},
+		}),
+		tailwindcss(),
+	],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
