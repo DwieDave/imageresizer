@@ -19,7 +19,7 @@ export const poolSize = (nrCores: number) => (imagesLength: number) =>
 	pipe(imagesLength / 2, Math.round, (_) => Math.min(_, nrCores));
 
 // Worker Pool Service using Effect.Service pattern
-export class WorkerPoolService extends Effect.Service<WorkerPoolService>()(
+class WorkerPoolService extends Effect.Service<WorkerPoolService>()(
 	"WorkerPoolService",
 	{
 		scoped: Effect.gen(function* () {
