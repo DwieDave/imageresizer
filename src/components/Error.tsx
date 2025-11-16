@@ -6,6 +6,11 @@ import { Button } from "./ui/button";
 
 export const ErrorMessage = () => {
 	const [error, setError] = useAtom(errorAtom);
+
+	const handleDismiss = () => {
+		setError({ show: false });
+	};
+
 	if (!error.show) return null;
 
 	return (
@@ -15,11 +20,7 @@ export const ErrorMessage = () => {
 				{error.message}
 				<br /> {error.cause || null}
 			</div>
-			<Button
-				variant="default"
-				onClick={() => setError({ show: false })}
-				disabled={false}
-			>
+			<Button variant="default" onClick={handleDismiss} disabled={false}>
 				Okay
 			</Button>
 		</Container>

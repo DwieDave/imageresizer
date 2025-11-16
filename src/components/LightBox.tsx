@@ -23,13 +23,12 @@ export const Lightbox: FC<LightboxProps> = ({
 		[oldImageFile],
 	);
 
-	// On Unmount: Revoke Object URL
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Cleanup Effect doesn't need deps
+	// On Unmount or URL Change: Revoke Object URL
 	useEffect(() => {
 		return () => {
 			URL.revokeObjectURL(originalImageUrl);
 		};
-	}, []);
+	}, [originalImageUrl]);
 
 	// Preload images to prevent flicker
 	useEffect(() => {

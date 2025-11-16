@@ -17,20 +17,31 @@ export const SettingsCard: React.FC<Props> = ({
 	value,
 	toggle,
 	children,
-}) => (
-	<div
-		className={cn(
-			!value ? "cursor-pointer" : "",
-			`flex flex-col hover:bg-accent/50 border items-start gap-3 rounded-lg p-3 
-		  has-[[aria-checked=true]]:border-indigo-600 has-[[aria-checked=true]]:bg-indigo-50
-		  dark:has-[[aria-checked=true]]:border-indigo-900 dark:has-[[aria-checked=true]]:bg-indigo-950/50`,
-		)}
-		onClick={() => (!value ? toggle(!value) : null)}
-	>
+}) => {
+	const handleContainerClick = () => {
+		if (!value) {
+			toggle(!value);
+		}
+	};
+
+	const handleToggleClick = () => {
+		toggle(!value);
+	};
+
+	return (
 		<div
-			className="flex w-full gap-3 click-padding-3 items-center cursor-pointer"
-			onClick={() => toggle(!value)}
+			className={cn(
+				!value ? "cursor-pointer" : "",
+				`flex flex-col hover:bg-accent/50 border items-start gap-3 rounded-lg p-3
+			  has-[[aria-checked=true]]:border-indigo-600 has-[[aria-checked=true]]:bg-indigo-50
+			  dark:has-[[aria-checked=true]]:border-indigo-900 dark:has-[[aria-checked=true]]:bg-indigo-950/50`,
+			)}
+			onClick={handleContainerClick}
 		>
+			<div
+				className="flex w-full gap-3 click-padding-3 items-center cursor-pointer"
+				onClick={handleToggleClick}
+			>
 			<Checkbox
 				className={`data-[state=checked]:border-indigo-600 data-[state=checked]:bg-indigo-600
 		      data-[state=checked]:text-white dark:data-[state=checked]:border-gray-700
@@ -48,4 +59,5 @@ export const SettingsCard: React.FC<Props> = ({
 			</div>
 		)}
 	</div>
-);
+	);
+};

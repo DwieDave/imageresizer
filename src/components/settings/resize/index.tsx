@@ -49,17 +49,21 @@ export const ResizeSettings = () => {
 				className="w-full max-w-full border border-indigo-900 p-3 rounded-lg"
 			>
 				<TabsList className="flex-wrap border-b-1 w-full pb-2">
-					{tabs.map((tab) => (
-						<TabsTrigger
-							key={tab.value}
-							onClick={() => changeResizeMode(tab.value)}
-							value={tab.value}
-							className="cursor-pointer text-xs"
-						>
-							<span className="hidden xl:inline">{tab.name}</span>
-							<span className="xl:hidden">{tab.short}</span>
-						</TabsTrigger>
-					))}
+					{tabs.map((tab) => {
+						const handleTabClick = () => changeResizeMode(tab.value);
+
+						return (
+							<TabsTrigger
+								key={tab.value}
+								onClick={handleTabClick}
+								value={tab.value}
+								className="cursor-pointer text-xs"
+							>
+								<span className="hidden xl:inline">{tab.name}</span>
+								<span className="xl:hidden">{tab.short}</span>
+							</TabsTrigger>
+						);
+					})}
 				</TabsList>
 				<TabsContent value="widthHeight" className={tabMinHeight}>
 					<WidthHeightResizeSetting />

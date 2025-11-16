@@ -16,6 +16,7 @@ import {
   type ReactNode,
   type TouchEventHandler,
   useContext,
+  useMemo,
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
@@ -110,10 +111,13 @@ export const Comparison = ({
     }
   };
 
+  const contextValue = useMemo(
+    () => ({ sliderPosition, setSliderPosition, motionSliderPosition, mode }),
+    [sliderPosition, setSliderPosition, motionSliderPosition, mode]
+  );
+
   return (
-    <ImageComparisonContext.Provider
-      value={{ sliderPosition, setSliderPosition, motionSliderPosition, mode }}
-    >
+    <ImageComparisonContext.Provider value={contextValue}>
       <div
         aria-label="Comparison slider"
         aria-valuemax={100}

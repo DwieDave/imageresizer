@@ -1,6 +1,6 @@
 import { BrowserKeyValueStore } from "@effect/platform-browser";
 import { Atom, Registry } from "@effect-atom/atom-react";
-import { Array, Effect, pipe, Record } from "effect";
+import { Effect, pipe, Record } from "effect";
 import {
 	CompressionConfiguration,
 	ExportConfiguration,
@@ -24,7 +24,6 @@ export const cpuCountAtom = Atom.map(imageCountAtom, (count) =>
 export const processedImagesAtom = Atom.map(imagesAtom, (imgs) =>
 	Record.filter(imgs, (img) => img.processed),
 );
-const processedImageArrayAtom = Atom.map(processedImagesAtom, Record.values);
 export const processedCountAtom = Atom.map(processedImagesAtom, (imgs) =>
 	Record.size(imgs),
 );
@@ -37,15 +36,6 @@ export const isProcessingAtom = Atom.map(
 			Record.filter((img) => !img.processed),
 			Record.size,
 		) > 0,
-);
-
-const filesAtom = Atom.map(imagesAtom, (imageRecord) =>
-	pipe(
-		imageRecord,
-		Record.filter((image) => !image.processed),
-		Record.toEntries,
-		Array.map(([_, image]) => image.file),
-	),
 );
 
 export const resizeConfigurationAtom = Atom.kvs({

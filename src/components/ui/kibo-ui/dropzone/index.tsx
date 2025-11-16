@@ -2,7 +2,7 @@
 
 import { UploadIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import type { DropEvent, DropzoneOptions, FileRejection } from "react-dropzone";
 import { useDropzone } from "react-dropzone";
 import { cn } from "../../../../lib/utils";
@@ -76,11 +76,13 @@ export const Dropzone = ({
 		...props,
 	});
 
+	const contextValue = useMemo(
+		() => ({ src, accept, maxSize, minSize, maxFiles }),
+		[src, accept, maxSize, minSize, maxFiles],
+	);
+
 	return (
-		<DropzoneContext.Provider
-			key={JSON.stringify(src)}
-			value={{ src, accept, maxSize, minSize, maxFiles }}
-		>
+		<DropzoneContext.Provider key={JSON.stringify(src)} value={contextValue}>
 			<Button
 				className={cn(
 					"relative h-auto w-full flex-col overflow-hidden p-8",
