@@ -5,6 +5,7 @@ import {
 	MagickImage,
 } from "@imagemagick/magick-wasm";
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
+import { HttpClient } from "@effect/platform";
 import { Context, Data, Effect, Layer } from "effect";
 import { type Configuration, formatMap } from "@/lib/types";
 import {
@@ -12,6 +13,7 @@ import {
 	toCauseString,
 	uint8arrayToArrayBuffer,
 } from "./utils";
+import { BrowserHttpClient } from "@effect/platform-browser";
 
 export class ImageMagickError extends Data.TaggedError("ImageMagickError")<{
 	stage: "FETCH" | "INITIALIZE";
@@ -33,21 +35,20 @@ export class ImageMagickWasmBytes extends Context.Tag(
 
 const FetchImageMagickWasmBytes = Layer.succeed(
 	ImageMagickWasmBytes,
-	Effect.tryPromise({
-		try: async () => {
-			const response = await fetch(wasmUrl);
-			if (!response.ok) {
-				throw new Error(`Failed to load WASM: ${response.statusText}`);
-			}
-			return response.arrayBuffer();
-		},
-		catch: (cause) =>
-			new ImageMagickError({
-				stage: "FETCH",
-				message: `Failed to load ImageMagick WASM Binary: ${toCauseString(cause)}`,
-				cause,
-			}),
-	}),
+	HttpClient.HttpClient.pipe(
+		Effect.flatMap((client) => client.get(wasmUrl)),
+		Effect.flatMap((response) => response.arrayBuffer),
+		BrowserHttpClient.withXHRArrayBuffer,
+		Effect.mapError(
+			(cause) =>
+				new ImageMagickError({
+					stage: "FETCH",
+					message: `Failed to load ImageMagick WASM Binary: ${toCauseString(cause)}`,
+					cause,
+				}),
+		),
+		Effect.provide(BrowserHttpClient.layerXMLHttpRequest),
+	),
 );
 
 export class ImageMagickService extends Effect.Service<ImageMagickService>()(

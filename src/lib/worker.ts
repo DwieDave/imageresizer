@@ -1,6 +1,10 @@
 import { Path, WorkerRunner } from "@effect/platform";
 import { WorkerError } from "@effect/platform/WorkerError";
-import { BrowserRuntime, BrowserWorkerRunner } from "@effect/platform-browser";
+import {
+	BrowserHttpClient,
+	BrowserRuntime,
+	BrowserWorkerRunner,
+} from "@effect/platform-browser";
 import { Effect, flow, Layer, type Record, Stream } from "effect";
 import { isError } from "effect/Predicate";
 import { ImageMagickService, ImageProcessingError } from "@/lib/imagemagick";
@@ -77,6 +81,7 @@ const WorkerLive = Effect.gen(function* () {
 	Layer.scopedDiscard,
 	Layer.provide(BrowserWorkerRunner.layer),
 	Layer.provide(ImageMagickService.Default),
+	Layer.provide(BrowserHttpClient.layerXMLHttpRequest),
 	Layer.provide(Path.layer),
 );
 
