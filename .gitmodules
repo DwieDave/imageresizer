@@ -1,3 +1,6 @@
 [submodule "docs/effect-repo"]
 	path = docs/effect-repo
 	url = https://github.com/Effect-TS/effect.git
+[submodule "docs/effect-atom-repo"]
+	path = docs/effect-atom-repo
+	url = git@github.com:tim-smart/effect-atom.git
