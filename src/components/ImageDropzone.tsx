@@ -1,4 +1,4 @@
-import { useAtom, useAtomSet } from "@effect-atom/atom-react";
+import { useAtomSet } from "@effect-atom/atom-react";
 import { Array, pipe, Record } from "effect";
 import {
 	Dropzone,
@@ -11,7 +11,7 @@ import { type Image, type ImageId, makeImageId } from "@/lib/types";
 
 export const ImageDropzone = () => {
 	const setImages = useAtomSet(imagesAtom);
-	const [_, process] = useAtom(processImagesAtom);
+	const process = useAtomSet(processImagesAtom);
 	const { config } = useConfig();
 
 	const disabled = Record.every(config, (conf) => !conf.enabled);

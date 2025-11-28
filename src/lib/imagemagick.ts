@@ -1,3 +1,5 @@
+import { HttpClient } from "@effect/platform";
+import { BrowserHttpClient } from "@effect/platform-browser";
 import {
 	type IMagickImage,
 	initializeImageMagick,
@@ -5,7 +7,6 @@ import {
 	MagickImage,
 } from "@imagemagick/magick-wasm";
 import wasmUrl from "@imagemagick/magick-wasm/magick.wasm?url";
-import { HttpClient } from "@effect/platform";
 import { Context, Data, Effect, Layer } from "effect";
 import { type Configuration, formatMap } from "@/lib/types";
 import {
@@ -13,7 +14,6 @@ import {
 	toCauseString,
 	uint8arrayToArrayBuffer,
 } from "./utils";
-import { BrowserHttpClient } from "@effect/platform-browser";
 
 export class ImageMagickError extends Data.TaggedError("ImageMagickError")<{
 	stage: "FETCH" | "INITIALIZE";
