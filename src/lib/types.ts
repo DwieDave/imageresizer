@@ -2,6 +2,10 @@ import { MagickFormat } from "@imagemagick/magick-wasm";
 import { Brand, Schema } from "effect";
 import type { Simplify } from "effect/Types";
 
+// ============================================================================
+// Format
+// ============================================================================
+
 export const FormatSchema = Schema.Literal(
 	"jpeg",
 	"png",
@@ -10,7 +14,7 @@ export const FormatSchema = Schema.Literal(
 	"gif",
 	"svg",
 );
-export type Format = Configuration["export"]["format"];
+export type Format = Schema.Schema.Type<typeof FormatSchema>;
 
 export const formatMap: Record<Format, MagickFormat> = {
 	jpeg: MagickFormat.Jpeg,
@@ -21,10 +25,16 @@ export const formatMap: Record<Format, MagickFormat> = {
 	avif: MagickFormat.Avif,
 };
 
+export const formatReplacementMap: Partial<Record<Format, string>> = {
+	jpeg: "jpg",
+};
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
 const Mode = Schema.Literal("widthHeight", "longestSide", "megapixel");
-
 const Dimension = Schema.Tuple(Schema.Positive, Schema.Positive);
-
 const ModeSettings = Schema.Struct({
 	widthHeight: Dimension,
 	longestSide: Schema.Positive,
@@ -85,8 +95,12 @@ export class Configuration extends Schema.Class<Configuration>("Configuration")(
 	},
 ) {}
 
+// ============================================================================
+// Image
+// ============================================================================
+
 export type ImageId = string & Brand.Brand<"ImageId">;
-export const makeImageId = Brand.nominal<ImageId>();
+export const ImageId = Brand.nominal<ImageId>();
 
 export type Image = {
 	customConfiguration?: Configuration;
@@ -100,9 +114,7 @@ export type Image = {
 			data: ArrayBuffer;
 			url: string;
 			mimeType: string;
-			original: {
-				file: File;
-			};
+			original: { file: File };
 	  }
 );
 

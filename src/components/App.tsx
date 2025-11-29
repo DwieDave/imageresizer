@@ -2,7 +2,11 @@ import { useAtomValue } from "@effect-atom/atom-react";
 import { Header } from "@/components/Header";
 import { ImageDropzone } from "@/components/ImageDropzone";
 import { Settings } from "@/components/settings";
-import { errorAtom, isProcessingAtom, processedCountAtom } from "@/lib/state";
+import {
+	errorAtom,
+	isProcessingAtom,
+	processedCountAtom,
+} from "@/lib/state";
 import { ErrorMessage } from "./Error";
 import { ImageGrid } from "./ImageGrid";
 import { ProgressBar } from "./ProgressBar";

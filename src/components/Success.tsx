@@ -1,7 +1,10 @@
 import { useAtomSet, useAtomValue } from "@effect-atom/atom-react";
 import { Record } from "effect";
 import { CircleCheckBig } from "lucide-react";
-import { imagesAtom, processedImagesAtom } from "@/lib/state";
+import {
+	imagesAtom,
+	processedImagesAtom,
+} from "@/lib/state";
 import { Button } from "./ui/button";
 
 export const Success = ({ processedCount }: { processedCount: number }) => {

@@ -1,7 +1,11 @@
 import { useAtomValue } from "@effect-atom/atom-react";
 import { Cpu } from "lucide-react";
 import { useId } from "react";
-import { cpuCountAtom, imageCountAtom, processedCountAtom } from "@/lib/state";
+import {
+	cpuCountAtom,
+	imageCountAtom,
+	processedCountAtom,
+} from "@/lib/state";
 import { Label } from "./ui/label";
 import { Progress } from "./ui/progress";
 

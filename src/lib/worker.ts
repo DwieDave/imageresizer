@@ -5,14 +5,12 @@ import {
 	BrowserRuntime,
 	BrowserWorkerRunner,
 } from "@effect/platform-browser";
-import { Effect, flow, Layer, type Record, Stream } from "effect";
-import { isError } from "effect/Predicate";
-import { ImageMagickService, ImageProcessingError } from "@/lib/imagemagick";
-import type { Format, ProcessedImage, WorkerInput } from "@/lib/types";
-
-const formatReplacementMap: Partial<Record<Format, string>> = {
-	jpeg: "jpg",
-};
+import { Effect, flow, Layer, Stream } from "effect";
+import { ImageMagickService } from "./imagemagick";
+import { ImageProcessingError } from "./imagemagick";
+import type { Format, ProcessedImage, WorkerInput } from "./types";
+import { formatReplacementMap } from "./types";
+import { toCauseString } from "./utils";
 
 const newName = (file: string, format: Format) =>
 	Effect.map(Path.Path, (path) => {
@@ -25,28 +23,20 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 	Effect.gen(function* () {
 		const imageMagick = yield* ImageMagickService;
 
-		yield* Effect.log(`Processing image: ${image.file.name}`);
+		yield* Effect.log(`Processing: ${image.file.name}`);
 
-		// Convert File to ArrayBuffer
 		const imageData = yield* Effect.tryPromise({
 			try: () => image.file.arrayBuffer(),
 			catch: (error) =>
 				new ImageProcessingError({
 					operation: "READ",
-					message: `Failed to read input file: ${isError(error) ? error.message : "Unknown cause"}`,
+					message: `Failed to read file: ${toCauseString(error)}`,
 					cause: error,
 				}),
 		});
 
-		// Process the image
 		const processedData = yield* imageMagick.processImage(imageData, config);
 		const mimeType = `image/${config.export.format ?? "jpeg"}`;
-
-		const processedBlob = new Blob([processedData], {
-			type: mimeType,
-		});
-
-		const processedUrl = URL.createObjectURL(processedBlob);
 
 		const result: ProcessedImage = {
 			id,
@@ -55,12 +45,14 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 			original: { file: image.file },
 			size: processedData.byteLength,
 			data: processedData,
-			url: processedUrl,
+			url: URL.createObjectURL(
+				new Blob([processedData], { type: mimeType }),
+			),
 			mimeType,
 		};
 
 		yield* Effect.log(
-			`Processed ${image.file.name}: ${result.original.file.size} -> ${result.size} bytes`,
+			`Done: ${image.file.name} (${result.original.file.size} → ${result.size} bytes)`,
 		);
 
 		return result;
@@ -71,12 +63,10 @@ const processImage = ({ image, id, config }: WorkerInput) =>
 		),
 	);
 
-const streamFromInput = flow(processImage, Stream.fromEffect);
-
 const WorkerLive = Effect.gen(function* () {
-	yield* WorkerRunner.make(streamFromInput);
-	yield* Effect.log("ImageMagick worker started");
-	yield* Effect.addFinalizer(() => Effect.log("ImageMagick worker closed"));
+	yield* WorkerRunner.make(flow(processImage, Stream.fromEffect));
+	yield* Effect.log("Worker started");
+	yield* Effect.addFinalizer(() => Effect.log("Worker closed"));
 }).pipe(
 	Layer.scopedDiscard,
 	Layer.provide(BrowserWorkerRunner.layer),
