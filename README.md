@@ -53,27 +53,25 @@ src/
 
 This is a browser-only application, not a distributed system:
 
-- **No layers** - No need for domain/application/infrastructure separation
 - **No circular dependencies** - Clear data flow from state → components → effects
 - **Flat organization** - All core logic in `/src/lib/` focused on specific concerns
-- **No overengineering** - Simple enough to maintain, powerful enough to scale
 
 ## Development
 
 ### Setup
 
 ```bash
-npm install
-npm run dev
+bun install
+bun dev
 ```
 
-Open http://localhost:5173 and upload images to get started.
+Open <http://localhost:5173> and upload images to get started.
 
 ### Testing
 
 ```bash
 # Run all tests
-npm test
+bun run test
 
 # Unit tests cover:
 # - Worker pool sizing calculations
@@ -83,7 +81,7 @@ npm test
 
 **Note:** ImageMagick WASM tests require a browser environment. Verify functionality by:
 
-1. Running the dev server: `npm run dev`
+1. Running the dev server: `bun dev`
 2. Uploading test images via the UI
 3. Checking browser DevTools console for any errors
 4. Verifying output files download correctly
@@ -91,15 +89,15 @@ npm test
 ### Building
 
 ```bash
-npm run build
+bun run build
 ```
 
 The build produces optimized chunks:
 
-- **effect-*.js** (252KB) - Effect library chunk for better caching
-- **index-*.js** (717KB) - Application and dependencies
-- **magick-*.wasm** (14.4MB) - ImageMagick WASM binary
-- **worker-*.js** (462KB) - Web Worker code
+- **effect-\*.js** (79KB) - Effect library chunk for better caching
+- **index-\*.js** (251KB) - Application and dependencies
+- **magick-\*.wasm** (5MB) - ImageMagick WASM binary
+- **worker-\*.js** (462KB) - Web Worker code
 
 ## Performance
 
