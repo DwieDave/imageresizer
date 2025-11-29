@@ -24,7 +24,7 @@ export const Success = ({ processedCount }: { processedCount: number }) => {
     setImages({});
   };
 
-  const handleDownload = () => {
+  const handleDownload = () =>
     downloadImages(processedImagesForDownload).pipe(
       Effect.tap(() =>
         Effect.sync(() => {
@@ -36,7 +36,6 @@ export const Success = ({ processedCount }: { processedCount: number }) => {
       ),
       BrowserRuntime.runMain,
     );
-  };
 
   const downloadLabel =
     processedImagesForDownload.length > 1 ? "Download .zip" : "Download";

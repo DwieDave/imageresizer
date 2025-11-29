@@ -135,7 +135,6 @@
 	&::after {
 		content: "";
 		position: absolute;
-		inset: calc(--spacing(--value(integer)) * -1);
 		inset: calc(--value([length]) * -1);
 	}
 }
@@ -145,7 +144,6 @@
 	--tw-outline-width: --spacing(--value(integer));
 	-webkit-text-stroke: var(--tw-outline-width)
 		var(--tw-outline-color, currentColor);
-	text-stroke: var(--tw-outline-width) var(--tw-outline-color, currentColor);
 	paint-order: stroke fill;
 }
 

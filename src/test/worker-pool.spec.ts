@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Record } from "effect";
+import type { Image } from "../lib/types";
 import { calculatePoolSize, MAX_POOL_SIZE } from "../lib/worker-pool";
 import { loadTestImages } from "./utils";
 
@@ -170,7 +171,7 @@ describe("worker input preparation", () => {
 	});
 
 	it("handles empty image record gracefully", () => {
-		const emptyImages: Record<string, any> = {};
+		const emptyImages: Record<string, Image> = {};
 		expect(Record.size(emptyImages)).toBe(0);
 		const unprocessed = Record.filter(emptyImages, (_) => !_.processed);
 		expect(Record.size(unprocessed)).toBe(0);
