@@ -48,17 +48,36 @@ export const ImageDropzone = () => {
       ),
       Effect.catchAll((error) =>
         Effect.sync(() => {
-          const message =
-            error && typeof error === "object" && "message" in error
-              ? String(error.message)
-              : "Processing failed";
-          const cause =
-            error &&
-            typeof error === "object" &&
-            "cause" in error &&
-            error.cause instanceof Error
-              ? error.cause.message
-              : undefined;
+          // Extract error message with context
+          let message = "Processing failed";
+          let cause: string | undefined;
+
+          if (error && typeof error === "object") {
+            if ("message" in error) {
+              message = String(error.message);
+            }
+
+            // Try to extract cause for better error context
+            if ("cause" in error && error.cause instanceof Error) {
+              cause = error.cause.message;
+            }
+            // Also check for nested effect errors
+            else if ("error" in error && error.error instanceof Error) {
+              cause = error.error.message;
+            }
+          }
+
+          // Provide user-friendly error context
+          if (message.includes("WASM")) {
+            message = "ImageMagick failed to process images";
+            cause = cause || "WASM processing error - try refreshing the page";
+          } else if (message.includes("Worker")) {
+            message = "Processing worker error";
+            cause = cause || "The processing worker encountered an issue";
+          } else if (message.includes("memory")) {
+            message = "Out of memory";
+            cause = cause || "Try processing fewer or smaller images";
+          }
 
           stateRegistry.set(errorAtom, { show: true, message, cause });
           stateRegistry.set(imagesAtom, {});

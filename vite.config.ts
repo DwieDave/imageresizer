@@ -19,4 +19,17 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "./src"),
 		},
 	},
+	build: {
+		// Suppress chunk size warnings for WASM and large dependencies
+		// Main chunk is unavoidably large due to React + Effect + UI dependencies
+		chunkSizeWarningLimit: 750,
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					// Isolate Effect library to its own chunk to improve caching
+					effect: ["effect"],
+				},
+			},
+		},
+	},
 });

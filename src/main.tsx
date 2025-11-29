@@ -4,7 +4,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "@/components/App.tsx";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { stateRegistry } from "@/lib/state.ts";
+import { stateRegistry } from "@/lib/state";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("This is not good.");

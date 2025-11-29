@@ -2,11 +2,11 @@ import { File as NodeFile } from "node:buffer";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { Match, pipe } from "effect";
-import {
-	type Configuration,
-	type ImageId,
-	type InputImage,
-	makeImageId,
+import { ImageId } from "@/lib/types";
+import type {
+	Configuration,
+	ImageId as ImageIdType,
+	InputImage,
 } from "@/lib/types";
 
 const fixture = (name: string) =>
@@ -31,10 +31,10 @@ const loadImage = (name: string) =>
 	pipe(name, fixture, readFileSync, toFile(name)(toType(name)), toImage);
 
 export const loadTestImages = () => {
-	const jpg = makeImageId(self.crypto.randomUUID());
-	const png = makeImageId(self.crypto.randomUUID());
+	const jpg = ImageId(self.crypto.randomUUID());
+	const png = ImageId(self.crypto.randomUUID());
 
-	const images: Record<ImageId, InputImage> = {
+	const images: Record<ImageIdType, InputImage> = {
 		[jpg]: loadImage("600x400.jpg"),
 		[png]: loadImage("600x400.png"),
 	};
