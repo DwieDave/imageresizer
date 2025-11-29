@@ -41,10 +41,13 @@ export const Success = ({ processedCount }: { processedCount: number }) => {
   const downloadLabel =
     processedImagesForDownload.length > 1 ? "Download .zip" : "Download";
 
+  const imagesLabel =
+    processedImagesForDownload.length < 2 ? "image" : "images";
+
   return (
     <div className="flex items-center justify-end gap-3">
       <CircleCheckBig className="size-5" color="var(--color-green-600)" />
-      {processedCount} images processed
+      {processedCount} {imagesLabel} processed
       <Button
         variant="default"
         className="bg-indigo-800/55 cursor-pointer hover:bg-indigo-800 text-white"
