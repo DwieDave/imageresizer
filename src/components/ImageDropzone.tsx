@@ -12,6 +12,7 @@ import {
   configurationAtom,
   errorAtom,
   imagesAtom,
+  processedImagesForDownloadAtom,
   showSuccessAtom,
   stateRegistry,
 } from "@/lib/state";
@@ -40,10 +41,10 @@ export const ImageDropzone = () => {
         [processedImage.id]: processedImage,
       }));
     }).pipe(
-      Effect.tap(() =>
+      Effect.tap((processedImages) =>
         Effect.sync(() => {
+          stateRegistry.set(processedImagesForDownloadAtom, processedImages);
           stateRegistry.set(showSuccessAtom, true);
-          setTimeout(() => stateRegistry.set(showSuccessAtom, false), 3000);
         }),
       ),
       Effect.catchAll((error) =>

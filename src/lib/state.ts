@@ -6,6 +6,7 @@ import {
 	ExportConfiguration,
 	type Image,
 	type ImageId,
+	type ProcessedImage,
 	ResizeConfiguration,
 } from "./types";
 
@@ -78,6 +79,8 @@ export const configurationAtom = Atom.make((get) => ({
 // ============================================================================
 
 export const showSuccessAtom = Atom.make(false);
+
+export const processedImagesForDownloadAtom = Atom.make<ProcessedImage[]>([]);
 
 export const errorAtom = Atom.make<
 	{ show: false } | { show: true; message: string; cause?: string }
