@@ -3,7 +3,7 @@
 export const Header = () => (
 	<div className="flex flex-row gap-4">
 		<div className="flex flex-row items-center">
-			<img src="icon.png" className="w-9" alt="Icon" />
+			<img src="icon.png" className="w-9" alt="Icon" width={36} height={36} />
 			<span className="ml-3">ImageResizer</span>
 		</div>
 		{/* <ThemeToggle className="ml-auto" /> */}
