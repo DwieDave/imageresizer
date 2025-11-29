@@ -1,6 +1,58 @@
 import { describe, expect, it } from "@effect/vitest";
 import { Record } from "effect";
+import { calculatePoolSize, MAX_POOL_SIZE } from "../lib/worker-pool";
 import { loadTestImages } from "./utils";
+
+/**
+ * Tests for the exported calculatePoolSize function
+ */
+describe("exported calculatePoolSize function", () => {
+	it("is available from worker-pool module", () => {
+		expect(calculatePoolSize).toBeDefined();
+		expect(typeof calculatePoolSize).toBe("function");
+	});
+
+	it("handles single image", () => {
+		const result = calculatePoolSize(1);
+		expect(result).toBe(1);
+	});
+
+	it("handles typical batch sizes", () => {
+		// 5 images -> round(2.5) = 3 workers (capped at hardware concurrency)
+		const result5 = calculatePoolSize(5);
+		expect(result5).toBeLessThanOrEqual(MAX_POOL_SIZE);
+		expect(result5).toBeGreaterThanOrEqual(1);
+
+		// 20 images -> round(10) = 10 workers (capped at hardware concurrency)
+		const result20 = calculatePoolSize(20);
+		expect(result20).toBeLessThanOrEqual(MAX_POOL_SIZE);
+		expect(result20).toBeGreaterThanOrEqual(1);
+	});
+
+	it("respects hardware concurrency ceiling", () => {
+		// Even with 1000 images, should not exceed MAX_POOL_SIZE
+		const result = calculatePoolSize(1000);
+		expect(result).toBeLessThanOrEqual(MAX_POOL_SIZE);
+	});
+
+	it("uses correct formula: min(round(imageCount / 2), MAX_POOL_SIZE)", () => {
+		const testCases = [
+			{ images: 1, expected: 1 },
+			{ images: 2, expected: 1 },
+			{ images: 3, expected: 2 },
+			{ images: 4, expected: 2 },
+			{ images: 5, expected: 3 },
+			{ images: 10, expected: 5 },
+		];
+
+		for (const { images, expected } of testCases) {
+			const result = calculatePoolSize(images);
+			// Expected should not exceed MAX_POOL_SIZE or be less than the calculated value
+			const expectedCapped = Math.min(expected, MAX_POOL_SIZE);
+			expect(result).toBe(expectedCapped);
+		}
+	});
+});
 
 /**
  * Pool size calculation tests
